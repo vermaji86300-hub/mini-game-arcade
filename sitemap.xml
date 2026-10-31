@@ -1,39 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://aapka-vercel-name.vercel.app/</loc>
+    <loc>https://mini-game-arcade-three.vercel.app/</loc>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://aapka-vercel-name.vercel.app/games/neon-runner.html</loc>
+    <loc>https://mini-game-arcade-three.vercel.app/games/neon-runner.html</loc>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://aapka-vercel-name.vercel.app/games/cyber-flap.html</loc>
+    <loc>https://mini-game-arcade-three.vercel.app/games/cyber-flap.html</loc>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://aapka-vercel-name.vercel.app/games/fruit-slice.html</loc>
+    <loc>https://mini-game-arcade-three.vercel.app/games/fruit-slice.html</loc>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://aapka-vercel-name.vercel.app/games/brick-breaker.html</loc>
+    <loc>https://mini-game-arcade-three.vercel.app/games/brick-breaker.html</loc>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://aapka-vercel-name.vercel.app/games/snake.html</loc>
+    <loc>https://mini-game-arcade-three.vercel.app/games/snake.html</loc>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://aapka-vercel-name.vercel.app/games/color-brick.html</loc>
+    <loc>https://mini-game-arcade-three.vercel.app/games/color-brick.html</loc>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://aapka-vercel-name.vercel.app/games/space-dodge.html</loc>
+    <loc>https://mini-game-arcade-three.vercel.app/games/space-dodge.html</loc>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://aapka-vercel-name.vercel.app/games/memory-match.html</loc>
+    <loc>https://mini-game-arcade-three.vercel.app/games/memory-match.html</loc>
     <priority>0.8</priority>
   </url>
 </urlset>
