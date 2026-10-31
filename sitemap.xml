@@ -1,39 +1,84 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Homepage -->
   <url>
     <loc>https://mini-game-arcade-three.vercel.app/</loc>
+    <lastmod>2026-10-31</lastmod>
+    <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
+
+  <!-- 1. Neon Runner -->
   <url>
     <loc>https://mini-game-arcade-three.vercel.app/games/neon-runner.html</loc>
+    <lastmod>2026-10-31</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- 2. Cyber Flap -->
   <url>
     <loc>https://mini-game-arcade-three.vercel.app/games/cyber-flap.html</loc>
+    <lastmod>2026-10-31</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-  <url>
-    <loc>https://mini-game-arcade-three.vercel.app/games/fruit-slice.html</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://mini-game-arcade-three.vercel.app/games/brick-breaker.html</loc>
-    <priority>0.8</priority>
-  </url>
+
+  <!-- 3. Snake Classic -->
   <url>
     <loc>https://mini-game-arcade-three.vercel.app/games/snake.html</loc>
+    <lastmod>2026-10-31</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- 4. Fruit Slicer -->
   <url>
-    <loc>https://mini-game-arcade-three.vercel.app/games/color-brick.html</loc>
+    <loc>https://mini-game-arcade-three.vercel.app/games/fruit-slice.html</loc>
+    <lastmod>2026-10-31</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- 5. Brick Breaker -->
+  <url>
+    <loc>https://mini-game-arcade-three.vercel.app/games/brick-breaker.html</loc>
+    <lastmod>2026-10-31</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- 6. Space Dodge -->
   <url>
     <loc>https://mini-game-arcade-three.vercel.app/games/space-dodge.html</loc>
+    <lastmod>2026-10-31</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- 7. Memory Match -->
   <url>
     <loc>https://mini-game-arcade-three.vercel.app/games/memory-match.html</loc>
+    <lastmod>2026-10-31</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- 8. Color Brick -->
+  <url>
+    <loc>https://mini-game-arcade-three.vercel.app/games/color-brick.html</loc>
+    <lastmod>2026-10-31</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- 9. Cyber Knife -->
+  <url>
+    <loc>https://mini-game-arcade-three.vercel.app/games/knife-hit.html</loc>
+    <lastmod>2026-10-31</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
 </urlset>
