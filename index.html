@@ -9,20 +9,6 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0284c7">
 
-    <!-- Structured Data for Google -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "Mini Game Arcade",
-      "url": "https://mini-game-arcade-three.vercel.app/",
-      "applicationCategory": "GameApplication",
-      "operatingSystem": "All",
-      "genre": "Arcade",
-      "browserRequirements": "Requires HTML5 canvas and Web Audio support"
-    }
-    </script>
-
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -34,7 +20,6 @@
             flex-direction: column;
         }
 
-        /* Top Bar */
         header {
             background: #0f172a;
             border-bottom: 1px solid #1e293b;
@@ -56,10 +41,7 @@
             align-items: center;
             gap: 8px;
         }
-        .header-actions {
-            display: flex;
-            gap: 10px;
-        }
+        .header-actions { display: flex; gap: 10px; }
         .action-btn {
             background: #1e293b;
             border: 1px solid #334155;
@@ -73,7 +55,6 @@
         }
         .action-btn:hover { background: #334155; color: #fff; }
 
-        /* Main Container */
         main {
             max-width: 1100px;
             margin: 0 auto;
@@ -82,7 +63,6 @@
             flex: 1;
         }
 
-        /* Filter Tabs */
         .filter-tabs {
             display: flex;
             gap: 10px;
@@ -108,7 +88,6 @@
             border-color: #38bdf8;
         }
 
-        /* Games Grid */
         .games-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -131,13 +110,18 @@
             border-color: #38bdf8;
             box-shadow: 0 10px 25px rgba(2, 132, 199, 0.2);
         }
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .game-icon { font-size: 28px; }
         .game-badge {
-            align-self: flex-start;
             font-size: 11px;
             font-weight: 700;
             padding: 4px 8px;
             border-radius: 6px;
-            margin-bottom: 12px;
             text-transform: uppercase;
         }
         .badge-reflex { background: rgba(239, 68, 68, 0.2); color: #f87171; }
@@ -166,7 +150,6 @@
             gap: 4px;
         }
 
-        /* SEO Editorial Section */
         .seo-intro {
             margin-top: 48px;
             background: #0f172a;
@@ -199,78 +182,20 @@
     </header>
 
     <main>
-        <!-- Category Filter Tabs -->
+        <!-- Filter Tabs -->
         <div class="filter-tabs">
-            <button class="tab-btn active" onclick="filterGames('all')">All Games (8)</button>
-            <button class="tab-btn" onclick="filterGames('reflex')">⚡ Reflex & Speed</button>
-            <button class="tab-btn" onclick="filterGames('retro')">🕹️ Classic Retro</button>
-            <button class="tab-btn" onclick="filterGames('puzzle')">🧠 Brain & Puzzle</button>
+            <button class="tab-btn active" onclick="setCategory('all', this)">All Games (<span id="total-games-count">0</span>)</button>
+            <button class="tab-btn" onclick="setCategory('reflex', this)">⚡ Reflex & Speed</button>
+            <button class="tab-btn" onclick="setCategory('retro', this)">🕹️ Classic Retro</button>
+            <button class="tab-btn" onclick="setCategory('puzzle', this)">🧠 Brain & Puzzle</button>
         </div>
 
-        <!-- Games Grid -->
-        <div class="games-grid" id="gamesGrid">
-            <a href="games/neon-runner.html" class="game-card" data-category="reflex">
-                <span class="game-badge badge-reflex">Reflex</span>
-                <h3 class="game-title">Neon Runner</h3>
-                <p class="game-desc">Rhythm dash jump action. Dodge spikes and blocks at accelerating speeds.</p>
-                <span class="play-tag">Play Now →</span>
-            </a>
+        <!-- Dynamic Grid (Auto-populated by JavaScript) -->
+        <div class="games-grid" id="gamesGrid"></div>
 
-            <a href="games/cyber-flap.html" class="game-card" data-category="reflex">
-                <span class="game-badge badge-reflex">Reflex</span>
-                <h3 class="game-title">Cyber Flap</h3>
-                <p class="game-desc">Navigate laser pillars in this futuristic, precision flight obstacle game.</p>
-                <span class="play-tag">Play Now →</span>
-            </a>
-
-            <a href="games/fruit-slice.html" class="game-card" data-category="reflex">
-                <span class="game-badge badge-reflex">Reflex</span>
-                <h3 class="game-title">Fruit Slicer</h3>
-                <p class="game-desc">Slash airborne juicy fruits, rack up multi-combos, and avoid explosive bombs.</p>
-                <span class="play-tag">Play Now →</span>
-            </a>
-
-            <a href="games/brick-breaker.html" class="game-card" data-category="retro">
-                <span class="game-badge badge-retro">Retro</span>
-                <h3 class="game-title">Brick Breaker</h3>
-                <p class="game-desc">Shatter dense walls with precise paddle deflections and accelerating balls.</p>
-                <span class="play-tag">Play Now →</span>
-            </a>
-
-            <a href="games/color-brick.html" class="game-card" data-category="puzzle">
-                <span class="game-badge badge-puzzle">Puzzle</span>
-                <h3 class="game-title">Color Brick</h3>
-                <p class="game-desc">Match paddle colors with falling bricks under rapid reaction time constraints.</p>
-                <span class="play-tag">Play Now →</span>
-            </a>
-
-            <a href="games/space-dodge.html" class="game-card" data-category="reflex">
-                <span class="game-badge badge-reflex">Reflex</span>
-                <h3 class="game-title">Space Dodge</h3>
-                <p class="game-desc">Maneuver your starship through infinite waves of accelerating space debris.</p>
-                <span class="play-tag">Play Now →</span>
-            </a>
-
-            <a href="games/memory-match.html" class="game-card" data-category="puzzle">
-                <span class="game-badge badge-puzzle">Puzzle</span>
-                <h3 class="game-title">Memory Match</h3>
-                <p class="game-desc">Flip cards, match emoji pairs against the clock, and train your visual memory.</p>
-                <span class="play-tag">Play Now →</span>
-            </a>
-
-            <a href="games/snake.html" class="game-card" data-category="retro">
-                <span class="game-badge badge-retro">Retro</span>
-                <h3 class="game-title">Snake Classic</h3>
-                <p class="game-desc">Authentic Nokia-style retro snake. Feast on apples and survive the tight grid.</p>
-                <span class="play-tag">Play Now →</span>
-            </a>
-        </div>
-
-        <!-- Google Ranking Editorial Section -->
         <article class="seo-intro">
             <h2>Instant Free Browser Games with Zero Installation</h2>
             <p>Welcome to Mini Game Arcade, a collection of high-performance HTML5 and Canvas browser games designed to run instantly on mobile smartphones, tablets, and desktop computers. Every game features procedural sound effects synthesized directly via the Web Audio API, eliminating bulky downloads and third-party plugins.</p>
-            <p>Whether you want to challenge your reflexes in Neon Runner, sharpen your memory in Memory Match, or relive 90s nostalgia with Snake Classic, our arcade ensures zero latency and instant playability.</p>
         </article>
     </main>
 
@@ -279,22 +204,124 @@
     </footer>
 
     <script>
-        // Category Filter Function
-        function filterGames(category) {
-            const cards = document.querySelectorAll('.game-card');
-            const tabs = document.querySelectorAll('.tab-btn');
+        // ==========================================
+        // YAHAN APNE GAMES KI LIST MANAGE KAREIN
+        // Jab bhi naya game bane, bas neeche 1 line add kar dein!
+        // ==========================================
+        const GAMES_DATABASE = [
+            {
+                title: "Cyber Knife",
+                url: "games/knife-hit.html",
+                category: "reflex",
+                badgeClass: "badge-reflex",
+                icon: "🔪",
+                desc: "Launch cyber blades into spinning neon cores without striking embedded knives."
+            },
+            {
+                title: "Neon Runner",
+                url: "games/neon-runner.html",
+                category: "reflex",
+                badgeClass: "badge-reflex",
+                icon: "⚡",
+                desc: "Rhythm dash jump action. Dodge spikes and blocks at accelerating speeds."
+            },
+            {
+                title: "Cyber Flap",
+                url: "games/cyber-flap.html",
+                category: "reflex",
+                badgeClass: "badge-reflex",
+                icon: "🛸",
+                desc: "Navigate laser pillars in this futuristic, precision flight obstacle game."
+            },
+            {
+                title: "Fruit Slicer",
+                url: "games/fruit-slice.html",
+                category: "reflex",
+                badgeClass: "badge-reflex",
+                icon: "🍉",
+                desc: "Slash airborne juicy fruits, rack up multi-combos, and avoid explosive bombs."
+            },
+            {
+                title: "Brick Breaker",
+                url: "games/brick-breaker.html",
+                category: "retro",
+                badgeClass: "badge-retro",
+                icon: "🧱",
+                desc: "Shatter dense walls with precise paddle deflections and accelerating balls."
+            },
+            {
+                title: "Space Dodge",
+                url: "games/space-dodge.html",
+                category: "reflex",
+                badgeClass: "badge-reflex",
+                icon: "🚀",
+                desc: "Maneuver your starship through infinite waves of accelerating space debris."
+            },
+            {
+                title: "Color Reflex",
+                url: "games/color-brick.html",
+                category: "puzzle",
+                badgeClass: "badge-puzzle",
+                icon: "🎨",
+                desc: "Match paddle colors with falling bricks under rapid reaction time constraints."
+            },
+            {
+                title: "Memory Match",
+                url: "games/memory-match.html",
+                category: "puzzle",
+                badgeClass: "badge-puzzle",
+                icon: "🧠",
+                desc: "Flip cards, match emoji pairs against the clock, and train your visual memory."
+            },
+            {
+                title: "Snake Classic",
+                url: "games/snake.html",
+                category: "retro",
+                badgeClass: "badge-retro",
+                icon: "🐍",
+                desc: "Authentic Nokia-style retro snake. Feast on apples and survive the tight grid."
+            }
+        ];
 
-            tabs.forEach(tab => tab.classList.remove('active'));
-            event.target.classList.add('active');
+        // Automatic Card Rendering Function
+        const grid = document.getElementById('gamesGrid');
+        const countSpan = document.getElementById('total-games-count');
+        countSpan.textContent = GAMES_DATABASE.length;
 
-            cards.forEach(card => {
-                if (category === 'all' || card.getAttribute('data-category') === category) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
+        function renderGames(filterCategory = 'all') {
+            grid.innerHTML = '';
+            
+            const filtered = filterCategory === 'all' 
+                ? GAMES_DATABASE 
+                : GAMES_DATABASE.filter(g => g.category === filterCategory);
+
+            filtered.forEach(game => {
+                const card = document.createElement('a');
+                card.href = game.url;
+                card.className = 'game-card';
+                card.setAttribute('data-category', game.category);
+
+                card.innerHTML = `
+                    <div class="card-top">
+                        <span class="game-icon">${game.icon}</span>
+                        <span class="game-badge ${game.badgeClass}">${game.category}</span>
+                    </div>
+                    <h3 class="game-title">${game.title}</h3>
+                    <p class="game-desc">${game.desc}</p>
+                    <span class="play-tag">Play Now →</span>
+                `;
+                grid.appendChild(card);
             });
         }
+
+        function setCategory(cat, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderGames(cat);
+        }
+
+        // Initial Load
+        renderGames();
 
         // Fullscreen Toggle
         document.getElementById('fullscreen-btn').addEventListener('click', () => {
@@ -305,16 +332,14 @@
             }
         });
 
-        // PWA Install Prompt Handler
+        // PWA Install Prompt
         let deferredPrompt;
         const installBtn = document.getElementById('install-btn');
-
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
             installBtn.style.display = 'block';
         });
-
         installBtn.addEventListener('click', () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
@@ -324,11 +349,6 @@
                 });
             }
         });
-
-        // Register Service Worker
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').catch(() => {});
-        }
     </script>
 </body>
 </html>
