@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brick Breaker - Mini Game Arcade</title>
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    .game-box { text-align: center; padding: 1.5rem 0; }
+    canvas { background: #020617; border: 2px solid #38bdf8; border-radius: 8px; touch-action: none; max-width: 100%; }
+  </style>
+</head>
+<body>
+  <header><div class="container navbar"><h1 class="logo">🎮 Mini Arcade</h1><nav><a href="../index.html">← Back to Arcade</a></nav></div></header>
+  <main class="container game-box">
+    <h2>🧱 Brick Breaker</h2>
+    <p>Move mouse or touch screen to slide paddle.</p>
+    <canvas id="breakout" width="360" height="420"></canvas>
+    <br><br>
+    <button class="btn" onclick="startBreakout()">Start / Restart</button>
+  </main>
+
+  <script>
+    const cvs = document.getElementById("breakout");
+    const ctx = cvs.getContext("2d");
+    let paddleW = 75, paddleH = 10, paddleX = 142;
+    let ballX = 180, ballY = 300, dx = 2.5, dy = -2.5, radius = 6;
+    let brickRows = 4, brickCols = 5, brickW = 58, brickH = 16, brickPadding = 10, offsetTop = 40, offsetLeft = 15;
+    let bricks = [], score = 0, isLive = false;
+
+    function buildBricks() {
+      bricks = [];
+      for (let c = 0; c < brickCols; c++) {
+        bricks[c] = [];
+        for (let r = 0; r < brickRows; r++) {
+          bricks[c][r] = { x: 0, y: 0, active: 1 };
+        }
+      }
+    }
+
+    function startBreakout() {
+      buildBricks();
+      ballX = 180; ballY = 300; dx = 2.5; dy = -2.5;
+      score = 0; isLive = true;
+      runGame();
+    }
+
+    function movePaddle(e) {
+      let rect = cvs.getBoundingClientRect();
+      let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      let relativeX = clientX - rect.left;
+      if (relativeX > 0 && relativeX < cvs.width) {
+        paddleX = Math.max(0, Math.min(cvs.width - paddleW, relativeX - paddleW / 2));
+      }
+    }
+    cvs.addEventListener("mousemove", movePaddle);
+    cvs.addEventListener("touchmove", (e) => { movePaddle(e); e.preventDefault(); }, { passive: false });
+
+    function runGame() {
+      if (!isLive) return;
+      ctx.clearRect(0, 0, cvs.width, cvs.height);
+
+      // Draw Bricks
+      for (let c = 0; c < brickCols; c++) {
+        for (let r = 0; r < brickRows; r++) {
+          if (bricks[c][r].active === 1) {
+            let bx = c * (brickW + brickPadding) + offsetLeft;
+            let by = r * (brickH + brickPadding) + offsetTop;
+            bricks[c][r].x = bx; bricks[c][r].y = by;
+            ctx.fillStyle = "#38bdf8";
+            ctx.fillRect(bx, by, brickW, brickH);
+
+            if (ballX > bx && ballX < bx + brickW && ballY > by && ballY < by + brickH) {
+              dy = -dy;
+              bricks[c][r].active = 0;
+              score++;
+              if (score === brickRows * brickCols) {
+                alert("You Win!"); isLive = false; return;
+              }
+            }
+          }
+        }
+      }
+
+      // Draw Ball
+      ctx.beginPath();
+      ctx.arc(ballX, ballY, radius, 0, Math.PI * 2);
+      ctx.fillStyle = "#facc15";
+      ctx.fill();
+      ctx.closePath();
+
+      // Draw Paddle
+      ctx.fillStyle = "#0284c7";
+      ctx.fillRect(paddleX, cvs.height - paddleH - 10, paddleW, paddleH);
+
+      // Bounce Logic
+      if (ballX + dx > cvs.width - radius || ballX + dx < radius) dx = -dx;
+      if (ballY + dy < radius) dy = -dy;
+      else if (ballY + dy > cvs.height - paddleH - 10 - radius) {
+        if (ballX > paddleX && ballX < paddleX + paddleW) {
+          dy = -dy;
+        } else if (ballY + dy > cvs.height - radius) {
+          alert("Game Over!");
+          isLive = false;
+          return;
+        }
+      }
+
+      ballX += dx; ballY += dy;
+      requestAnimationFrame(runGame);
+    }
+    buildBricks();
+  </script>
+</body>
+</html>

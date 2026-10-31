@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Game Arcade - Play Free Web Games</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <div class="container navbar">
+      <h1 class="logo">🎮 Mini Arcade</h1>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h2>Free, Instant Web Mini-Games</h2>
+      <p>Play responsive browser games on desktop and mobile. No installations, no signups required.</p>
+    </section>
+
+    <section class="game-grid">
+      <!-- Game 1 -->
+      <div class="game-card">
+        <div class="game-thumb">🍉</div>
+        <h3>Fruit Slicer</h3>
+        <p>Slice incoming fruits before they drop. Avoid the bombs!</p>
+        <a href="games/fruit-slice.html" class="btn">Play Now</a>
+      </div>
+
+      <!-- Game 2 -->
+      <div class="game-card">
+        <div class="game-thumb">🧠</div>
+        <h3>Memory Match</h3>
+        <p>Flip and match pairs of cards in minimum moves.</p>
+        <a href="games/memory-match.html" class="btn">Play Now</a>
+      </div>
+
+      <!-- Game 3 -->
+      <div class="game-card">
+        <div class="game-thumb">🧱</div>
+        <h3>Brick Breaker</h3>
+        <p>Bounce the ball, break bricks, and don't let it drop.</p>
+        <a href="games/brick-breaker.html" class="btn">Play Now</a>
+      </div>
+
+      <!-- Game 4 -->
+      <div class="game-card">
+        <div class="game-thumb">🚀</div>
+        <h3>Space Dodge</h3>
+        <p>Pilot your rocket and dodge oncoming asteroids.</p>
+        <a href="games/space-dodge.html" class="btn">Play Now</a>
+      </div>
+
+      <!-- Game 5 -->
+      <div class="game-card">
+        <div class="game-thumb">⚡</div>
+        <h3>Color Reflex</h3>
+        <p>Match the target color before the timer runs out!</p>
+        <a href="games/color-reflex.html" class="btn">Play Now</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-content">
+      <p>&copy; 2026 Mini Game Arcade. All rights reserved.</p>
+      <div class="footer-links">
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms of Service</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

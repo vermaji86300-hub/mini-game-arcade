@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Space Dodge - Mini Game Arcade</title>
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    .game-box { text-align: center; padding: 1.5rem 0; }
+    canvas { background: #020617; border: 2px solid #38bdf8; border-radius: 8px; touch-action: none; max-width: 100%; }
+  </style>
+</head>
+<body>
+  <header><div class="container navbar"><h1 class="logo">🎮 Mini Arcade</h1><nav><a href="../index.html">← Back to Arcade</a></nav></div></header>
+  <main class="container game-box">
+    <h2>🚀 Space Dodge</h2>
+    <p>Move left/right to dodge falling space rocks!</p>
+    <p>Score: <span id="spaceScore">0</span></p>
+    <canvas id="spaceCanvas" width="340" height="450"></canvas>
+    <br><br>
+    <button class="btn" onclick="startSpaceGame()">Launch Rocket</button>
+  </main>
+
+  <script>
+    const cvs = document.getElementById("spaceCanvas");
+    const ctx = cvs.getContext("2d");
+    let shipX = 150, rocks = [], score = 0, isPlaying = false;
+
+    function moveShip(e) {
+      let rect = cvs.getBoundingClientRect();
+      let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      shipX = Math.max(10, Math.min(cvs.width - 40, clientX - rect.left - 15));
+    }
+    cvs.addEventListener("mousemove", moveShip);
+    cvs.addEventListener("touchmove", (e) => { moveShip(e); e.preventDefault(); }, { passive: false });
+
+    function startSpaceGame() {
+      shipX = 150; rocks = []; score = 0; isPlaying = true;
+      document.getElementById("spaceScore").innerText = score;
+      spawnRocks();
+      loop();
+    }
+
+    function spawnRocks() {
+      if (!isPlaying) return;
+      rocks.push({ x: Math.random() * (cvs.width - 30), y: -20, speed: Math.random() * 2 + 3 });
+      setTimeout(spawnRocks, 450);
+    }
+
+    function loop() {
+      if (!isPlaying) return;
+      ctx.clearRect(0, 0, cvs.width, cvs.height);
+
+      // Draw Ship
+      ctx.font = "26px sans-serif";
+      ctx.fillText("🚀", shipX, 420);
+
+      // Draw Rocks
+      for (let i = rocks.length - 1; i >= 0; i--) {
+        let r = rocks[i];
+        r.y += r.speed;
+        ctx.fillText("🪨", r.x, r.y);
+
+        // Collision Check
+        if (r.y > 390 && r.y < 430 && Math.abs(r.x - shipX) < 22) {
+          isPlaying = false;
+          alert("Ship Destroyed! Score: " + score);
+          return;
+        }
+
+        if (r.y > 470) {
+          rocks.splice(i, 1);
+          score += 1;
+          document.getElementById("spaceScore").innerText = score;
+        }
+      }
+      requestAnimationFrame(loop);
+    }
+  </script>
+</body>
+</html>

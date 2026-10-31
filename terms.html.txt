@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms of Use - Mini Game Arcade</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header><div class="container navbar"><h1 class="logo">🎮 Mini Arcade</h1><nav><a href="index.html">Home</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a></nav></div></header>
+  <main class="container legal-page">
+    <h2>Terms of Use</h2>
+    <p>By accessing Mini Game Arcade, you agree to access content strictly for personal, non-commercial entertainment purposes.</p>
+    <p>Automated bots, web scraping, and intentional generation of invalid ad impressions or clicks are strictly prohibited.</p>
+  </main>
+  <footer><div class="container footer-content"><p>&copy; 2026 Mini Game Arcade</p></div></footer>
+</body>
+</html>

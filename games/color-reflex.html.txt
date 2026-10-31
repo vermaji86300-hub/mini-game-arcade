@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Color Reflex - Mini Game Arcade</title>
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    .reflex-box { text-align: center; padding: 2rem 0; }
+    .color-target {
+      font-size: 2rem;
+      font-weight: bold;
+      margin: 1.5rem 0;
+      padding: 10px;
+      display: inline-block;
+      border-radius: 8px;
+    }
+    .options {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin: 1.5rem auto;
+      flex-wrap: wrap;
+    }
+    .color-btn {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      border: 3px solid #ffffff33;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header><div class="container navbar"><h1 class="logo">🎮 Mini Arcade</h1><nav><a href="../index.html">← Back to Arcade</a></nav></div></header>
+  <main class="container reflex-box">
+    <h2>⚡ Color Reflex</h2>
+    <p>Click the matching color circle before time runs out!</p>
+    <div id="target" class="color-target">READY</div>
+    <div class="options" id="color-options"></div>
+    <p>Score: <span id="reflexScore">0</span> | Time Left: <span id="timer">3</span>s</p>
+    <br>
+    <button class="btn" onclick="startGame()">Start Reflex Test</button>
+  </main>
+
+  <script>
+    const palette = ["#ef4444", "#3b82f6", "#10b981", "#eab308"];
+    const names = ["RED", "BLUE", "GREEN", "YELLOW"];
+    let score = 0, timerVal = 3, interval, targetIdx;
+
+    function nextRound() {
+      clearInterval(interval);
+      timerVal = 3;
+      document.getElementById("timer").innerText = timerVal;
+      targetIdx = Math.floor(Math.random() * palette.length);
+      const targetDiv = document.getElementById("target");
+      targetDiv.innerText = names[targetIdx];
+      targetDiv.style.color = palette[Math.floor(Math.random() * palette.length)]; // trick color
+
+      interval = setInterval(() => {
+        timerVal--;
+        document.getElementById("timer").innerText = timerVal;
+        if (timerVal <= 0) {
+          clearInterval(interval);
+          alert("Time Out! Final Score: " + score);
+        }
+      }, 1000);
+    }
+
+    function checkChoice(idx) {
+      if (idx === targetIdx) {
+        score++;
+        document.getElementById("reflexScore").innerText = score;
+        nextRound();
+      } else {
+        clearInterval(interval);
+        alert("Wrong Color! Game Over. Score: " + score);
+      }
+    }
+
+    function startGame() {
+      score = 0;
+      document.getElementById("reflexScore").innerText = score;
+      const opts = document.getElementById("color-options");
+      opts.innerHTML = "";
+      palette.forEach((col, idx) => {
+        let b = document.createElement("div");
+        b.className = "color-btn";
+        b.style.backgroundColor = col;
+        b.onclick = () => checkChoice(idx);
+        opts.appendChild(b);
+      });
+      nextRound();
+    }
+  </script>
+</body>
+</html>

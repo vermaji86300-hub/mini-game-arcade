@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Fruit Slicer - Mini Game Arcade</title>
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    .game-container { text-align: center; padding: 1rem 0; }
+    canvas { background: #020617; border: 2px solid #38bdf8; border-radius: 8px; touch-action: none; max-width: 100%; }
+    .game-ui { margin-top: 10px; display: flex; justify-content: center; gap: 20px; align-items: center; }
+  </style>
+</head>
+<body>
+  <header><div class="container navbar"><h1 class="logo">🎮 Mini Arcade</h1><nav><a href="../index.html">← Back to Arcade</a></nav></div></header>
+  <main class="container game-container">
+    <h2>🍉 Fruit Slicer</h2>
+    <p>Swipe or drag mouse to slice fruits. Don't hit the bombs!</p>
+    <div class="game-ui">
+      <h3>Score: <span id="score">0</span></h3>
+      <h3>Lives: <span id="lives">3</span></h3>
+      <button id="start-btn" class="btn">Start Game</button>
+    </div>
+    <br>
+    <canvas id="gameCanvas" width="400" height="500"></canvas>
+  </main>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    let score = 0, lives = 3, running = false;
+    let items = [], slicePath = [];
+
+    const fruitEmojis = ["🍎", "🍌", "🍉", "🍊"];
+
+    function spawnItem() {
+      if (!running) return;
+      const isBomb = Math.random() < 0.2;
+      items.push({
+        x: Math.random() * 340 + 30,
+        y: 500,
+        vx: (Math.random() - 0.5) * 4,
+        vy: -(Math.random() * 4 + 10),
+        emoji: isBomb ? "💣" : fruitEmojis[Math.floor(Math.random() * fruitEmojis.length)],
+        isBomb: isBomb,
+        radius: 24,
+        sliced: false
+      });
+      setTimeout(spawnItem, Math.random() * 800 + 600);
+    }
+
+    function checkSlice(x, y) {
+      items.forEach(item => {
+        if (!item.sliced) {
+          let dist = Math.hypot(item.x - x, item.y - y);
+          if (dist < item.radius) {
+            item.sliced = true;
+            if (item.isBomb) {
+              lives = 0;
+              endGame();
+            } else {
+              score += 10;
+              document.getElementById("score").innerText = score;
+            }
+          }
+        }
+      });
+    }
+
+    function update() {
+      if (!running) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = items.length - 1; i >= 0; i--) {
+        let it = items[i];
+        it.x += it.vx;
+        it.y += it.vy;
+        it.vy += 0.25; // gravity
+
+        ctx.font = "28px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(it.emoji, it.x, it.y);
+
+        if (it.y > 520) {
+          if (!it.sliced && !it.isBomb) {
+            lives--;
+            document.getElementById("lives").innerText = lives;
+            if (lives <= 0) endGame();
+          }
+          items.splice(i, 1);
+        }
+      }
+
+      requestAnimationFrame(update);
+    }
+
+    function handleInput(e) {
+      if (!running) return;
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+      checkSlice(x, y);
+    }
+
+    canvas.addEventListener("mousemove", (e) => { if (e.buttons === 1) handleInput(e); });
+    canvas.addEventListener("touchmove", (e) => { handleInput(e); e.preventDefault(); }, { passive: false });
+
+    function startGame() {
+      score = 0; lives = 3; items = []; running = true;
+      document.getElementById("score").innerText = score;
+      document.getElementById("lives").innerText = lives;
+      document.getElementById("start-btn").innerText = "Restart";
+      spawnItem();
+      update();
+    }
+
+    function endGame() {
+      running = false;
+      alert("Game Over! Final Score: " + score);
+    }
+
+    document.getElementById("start-btn").addEventListener("click", startGame);
+  </script>
+</body>
+</html>
