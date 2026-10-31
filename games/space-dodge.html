@@ -1,81 +1,173 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Space Dodge - Mini Game Arcade</title>
-  <link rel="stylesheet" href="../styles.css">
-  <style>
-    .game-box { text-align: center; padding: 1.5rem 0; }
-    canvas { background: #020617; border: 2px solid #38bdf8; border-radius: 8px; touch-action: none; max-width: 100%; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Space Dodge - Mini Arcade</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body {
+            background: #090d16; color: #f8fafc; font-family: system-ui, sans-serif;
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow: hidden;
+        }
+        header {
+            width: 100%; max-width: 480px; display: flex; justify-content: space-between;
+            align-items: center; padding: 12px 15px;
+        }
+        .back-btn { color: #38bdf8; text-decoration: none; font-weight: 600; }
+        .stats { display: flex; gap: 15px; font-weight: bold; }
+        .game-container {
+            position: relative; width: 100%; max-width: 480px; height: 580px;
+            background: #0f172a; border-radius: 12px; overflow: hidden;
+        }
+        canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+        .overlay {
+            position: absolute; inset: 0; background: rgba(9, 13, 22, 0.9);
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; gap: 15px; z-index: 10;
+        }
+        .btn {
+            background: #0284c7; color: white; border: none; padding: 12px 28px;
+            font-size: 17px; font-weight: bold; border-radius: 8px; cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-  <header><div class="container navbar"><h1 class="logo">🎮 Mini Arcade</h1><nav><a href="../index.html">← Back to Arcade</a></nav></div></header>
-  <main class="container game-box">
-    <h2>🚀 Space Dodge</h2>
-    <p>Move left/right to dodge falling space rocks!</p>
-    <p>Score: <span id="spaceScore">0</span></p>
-    <canvas id="spaceCanvas" width="340" height="450"></canvas>
-    <br><br>
-    <button class="btn" onclick="startSpaceGame()">Launch Rocket</button>
-  </main>
+    <header>
+        <a href="../index.html" class="back-btn">← Back</a>
+        <div class="stats">
+            <div>Score: <span id="scoreVal" style="color:#4ade80;">0</span></div>
+            <div>Lvl: <span id="lvlVal" style="color:#38bdf8;">1</span></div>
+        </div>
+    </header>
 
-  <script>
-    const cvs = document.getElementById("spaceCanvas");
-    const ctx = cvs.getContext("2d");
-    let shipX = 150, rocks = [], score = 0, isPlaying = false;
+    <div class="game-container">
+        <canvas id="gameCanvas" width="480" height="580"></canvas>
+        <div id="startScreen" class="overlay">
+            <h2>Space Dodge</h2>
+            <p>Drag spaceship left/right to dodge meteorites!</p>
+            <button class="btn" onclick="startGame()">Launch</button>
+        </div>
+        <div id="overScreen" class="overlay" style="display:none;">
+            <h2 style="color:#f43f5e;">Destroyed! 💥</h2>
+            <p id="finalScore">Score: 0</p>
+            <button class="btn" onclick="startGame()">Try Again</button>
+        </div>
+    </div>
 
-    function moveShip(e) {
-      let rect = cvs.getBoundingClientRect();
-      let clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      shipX = Math.max(10, Math.min(cvs.width - 40, clientX - rect.left - 15));
-    }
-    cvs.addEventListener("mousemove", moveShip);
-    cvs.addEventListener("touchmove", (e) => { moveShip(e); e.preventDefault(); }, { passive: false });
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreVal = document.getElementById('scoreVal');
+        const lvlVal = document.getElementById('lvlVal');
+        const startScreen = document.getElementById('startScreen');
+        const overScreen = document.getElementById('overScreen');
 
-    function startSpaceGame() {
-      shipX = 150; rocks = []; score = 0; isPlaying = true;
-      document.getElementById("spaceScore").innerText = score;
-      spawnRocks();
-      loop();
-    }
-
-    function spawnRocks() {
-      if (!isPlaying) return;
-      rocks.push({ x: Math.random() * (cvs.width - 30), y: -20, speed: Math.random() * 2 + 3 });
-      setTimeout(spawnRocks, 450);
-    }
-
-    function loop() {
-      if (!isPlaying) return;
-      ctx.clearRect(0, 0, cvs.width, cvs.height);
-
-      // Draw Ship
-      ctx.font = "26px sans-serif";
-      ctx.fillText("🚀", shipX, 420);
-
-      // Draw Rocks
-      for (let i = rocks.length - 1; i >= 0; i--) {
-        let r = rocks[i];
-        r.y += r.speed;
-        ctx.fillText("🪨", r.x, r.y);
-
-        // Collision Check
-        if (r.y > 390 && r.y < 430 && Math.abs(r.x - shipX) < 22) {
-          isPlaying = false;
-          alert("Ship Destroyed! Score: " + score);
-          return;
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSfx(freq, dur, type='sine') {
+            try {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + dur);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + dur);
+            } catch(e) {}
         }
 
-        if (r.y > 470) {
-          rocks.splice(i, 1);
-          score += 1;
-          document.getElementById("spaceScore").innerText = score;
+        let isRunning = false, score = 0, level = 1;
+        let ship = { x: 220, y: 510, size: 34 };
+        let enemies = [], stars = [];
+
+        for (let i = 0; i < 40; i++) {
+            stars.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, s: Math.random() * 2 + 1 });
         }
-      }
-      requestAnimationFrame(loop);
-    }
-  </script>
+
+        function setShipX(clientX) {
+            const rect = canvas.getBoundingClientRect();
+            const relX = (clientX - rect.left) * (canvas.width / rect.width);
+            ship.x = Math.max(10, Math.min(canvas.width - ship.size - 10, relX - ship.size / 2));
+        }
+
+        canvas.addEventListener('mousemove', e => setShipX(e.clientX));
+        canvas.addEventListener('touchmove', e => { e.preventDefault(); setShipX(e.touches[0].clientX); }, { passive: false });
+
+        function startGame() {
+            score = 0; level = 1; enemies = [];
+            ship.x = 220;
+            scoreVal.innerText = score;
+            lvlVal.innerText = level;
+            startScreen.style.display = 'none';
+            overScreen.style.display = 'none';
+            isRunning = true;
+            requestAnimationFrame(loop);
+        }
+
+        let lastSpawn = 0;
+        function loop(timestamp) {
+            if (!isRunning) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Stars background
+            ctx.fillStyle = '#64748b';
+            stars.forEach(st => {
+                st.y += 2 + level * 0.4;
+                if (st.y > canvas.height) st.y = 0;
+                ctx.fillRect(st.x, st.y, st.s, st.s);
+            });
+
+            // Score and Level Scaling
+            score++;
+            scoreVal.innerText = Math.floor(score / 5);
+            level = Math.floor(score / 300) + 1;
+            lvlVal.innerText = level;
+
+            // Spawn Obstacles (Frequency increases with level)
+            const spawnRate = Math.max(300, 750 - (level * 50));
+            if (timestamp - lastSpawn > spawnRate) {
+                enemies.push({
+                    x: Math.random() * (canvas.width - 40) + 20,
+                    y: -30,
+                    radius: Math.random() * 12 + 14,
+                    speed: Math.random() * 2 + 3 + (level * 0.7)
+                });
+                lastSpawn = timestamp;
+            }
+
+            // Draw Ship
+            ctx.font = `${ship.size}px sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.fillText('🚀', ship.x + ship.size / 2, ship.y + ship.size / 2);
+
+            // Enemies Update & Collision
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                const en = enemies[i];
+                en.y += en.speed;
+
+                ctx.font = `${en.radius * 2}px sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.fillText('☄️', en.x, en.y);
+
+                // Collision Detection
+                const dist = Math.hypot((ship.x + ship.size / 2) - en.x, (ship.y + ship.size / 2) - en.y);
+                if (dist < en.radius + ship.size / 3) {
+                    isRunning = false;
+                    playSfx(120, 0.4, 'sawtooth');
+                    document.getElementById('finalScore').innerText = `Final Score: ${Math.floor(score / 5)}`;
+                    overScreen.style.display = 'flex';
+                    return;
+                }
+
+                if (en.y > canvas.height + 40) enemies.splice(i, 1);
+            }
+
+            requestAnimationFrame(loop);
+        }
+    </script>
 </body>
 </html>

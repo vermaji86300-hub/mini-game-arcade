@@ -1,104 +1,208 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Memory Match - Mini Game Arcade</title>
-  <link rel="stylesheet" href="../styles.css">
-  <style>
-    .game-board {
-      display: grid;
-      grid-template-columns: repeat(4, 70px);
-      gap: 12px;
-      justify-content: center;
-      margin: 2rem auto;
-    }
-    .card {
-      width: 70px;
-      height: 70px;
-      background: #334155;
-      color: transparent;
-      font-size: 2rem;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border-radius: 8px;
-      cursor: pointer;
-      user-select: none;
-      transition: background 0.3s;
-    }
-    .card.flipped {
-      background: #0284c7;
-      color: #fff;
-    }
-    .card.matched {
-      background: #10b981;
-      color: #fff;
-      cursor: default;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Memory Match - Mini Arcade</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body {
+            background: #0f172a; color: #f8fafc; font-family: system-ui, sans-serif;
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+        }
+        header {
+            width: 100%; max-width: 500px; display: flex; justify-content: space-between;
+            align-items: center; padding: 15px 20px;
+        }
+        .back-btn { color: #38bdf8; text-decoration: none; font-weight: 600; }
+        .stats { display: flex; gap: 15px; font-weight: bold; font-size: 16px; }
+        .game-container {
+            width: 100%; max-width: 480px; padding: 10px; display: flex;
+            flex-direction: column; align-items: center; position: relative;
+        }
+        .grid {
+            display: grid; gap: 10px; width: 100%; max-width: 420px;
+            margin-top: 10px; perspective: 1000px;
+        }
+        .card {
+            background: #1e293b; border: 2px solid #334155; border-radius: 10px;
+            aspect-ratio: 1; display: flex; justify-content: center; align-items: center;
+            font-size: 32px; cursor: pointer; transition: transform 0.3s, background 0.3s;
+        }
+        .card.flipped { background: #0284c7; border-color: #38bdf8; transform: rotateY(180deg); }
+        .card.matched { background: #059669; border-color: #34d399; cursor: default; }
+        .overlay {
+            position: absolute; inset: 0; background: rgba(15, 23, 42, 0.9);
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; gap: 15px; border-radius: 12px; z-index: 20;
+        }
+        .btn {
+            background: #0284c7; color: white; border: none; padding: 10px 24px;
+            font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-  <header><div class="container navbar"><h1 class="logo">🎮 Mini Arcade</h1><nav><a href="../index.html">← Back to Arcade</a></nav></div></header>
-  <main class="container" style="text-align: center; padding: 2rem 0;">
-    <h2>🧠 Memory Match</h2>
-    <p>Find matching pairs in minimum moves!</p>
-    <p>Moves: <span id="moves">0</span></p>
-    <div class="game-board" id="board"></div>
-    <button class="btn" onclick="initBoard()">Restart Game</button>
-  </main>
+    <header>
+        <a href="../index.html" class="back-btn">← Back</a>
+        <div class="stats">
+            <div>Lvl: <span id="lvlVal" style="color:#38bdf8;">1</span></div>
+            <div>Moves: <span id="movesVal" style="color:#fbbf24;">0</span></div>
+            <div>Time: <span id="timeVal" style="color:#f87171;">20s</span></div>
+        </div>
+    </header>
 
-  <script>
-    const icons = ["🐱", "🐶", "🦊", "🐼", "🐸", "🐵"];
-    let cards = [...icons, ...icons];
-    let flipped = [], moves = 0, matchedPairs = 0;
+    <div class="game-container">
+        <div class="grid" id="grid"></div>
+        <div id="startOverlay" class="overlay">
+            <h2>Memory Match</h2>
+            <p>Flip and match pairs before time runs out!</p>
+            <button class="btn" onclick="startGame()">Start Level 1</button>
+        </div>
+        <div id="msgOverlay" class="overlay" style="display:none;">
+            <h2 id="msgTitle">Game Over</h2>
+            <p id="msgDesc">Score: 0</p>
+            <button class="btn" id="nextBtn" onclick="nextLevel()">Continue</button>
+        </div>
+    </div>
 
-    function initBoard() {
-      cards.sort(() => 0.5 - Math.random());
-      const board = document.getElementById("board");
-      board.innerHTML = "";
-      moves = 0; matchedPairs = 0; flipped = [];
-      document.getElementById("moves").innerText = moves;
-
-      cards.forEach((icon, i) => {
-        let el = document.createElement("div");
-        el.className = "card";
-        el.dataset.icon = icon;
-        el.onclick = () => flipCard(el);
-        board.appendChild(el);
-      });
-    }
-
-    function flipCard(el) {
-      if (flipped.length < 2 && !el.classList.contains("flipped") && !el.classList.contains("matched")) {
-        el.classList.add("flipped");
-        el.innerText = el.dataset.icon;
-        flipped.push(el);
-
-        if (flipped.length === 2) {
-          moves++;
-          document.getElementById("moves").innerText = moves;
-          if (flipped[0].dataset.icon === flipped[1].dataset.icon) {
-            flipped[0].classList.add("matched");
-            flipped[1].classList.add("matched");
-            matchedPairs++;
-            flipped = [];
-            if (matchedPairs === icons.length) {
-              setTimeout(() => alert(`Won in ${moves} moves!`), 300);
-            }
-          } else {
-            setTimeout(() => {
-              flipped[0].classList.remove("flipped");
-              flipped[0].innerText = "";
-              flipped[1].classList.remove("flipped");
-              flipped[1].innerText = "";
-              flipped = [];
-            }, 800);
-          }
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playTone(freq, type, duration) {
+            try {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e) {}
         }
-      }
-    }
-    initBoard();
-  </script>
+
+        const ICONS = ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯'];
+        let level = 1;
+        let moves = 0;
+        let timeLeft = 20;
+        let timer;
+        let flipped = [];
+        let matchedCount = 0;
+        let totalPairs = 2;
+
+        const grid = document.getElementById('grid');
+        const lvlVal = document.getElementById('lvlVal');
+        const movesVal = document.getElementById('movesVal');
+        const timeVal = document.getElementById('timeVal');
+        const startOverlay = document.getElementById('startOverlay');
+        const msgOverlay = document.getElementById('msgOverlay');
+
+        function startGame() {
+            startOverlay.style.display = 'none';
+            msgOverlay.style.display = 'none';
+            loadLevel();
+        }
+
+        function loadLevel() {
+            clearInterval(timer);
+            flipped = [];
+            matchedCount = 0;
+            moves = 0;
+            movesVal.innerText = moves;
+            lvlVal.innerText = level;
+
+            // Difficulty levels: cards and time
+            let cols = 2;
+            if (level === 1) { totalPairs = 2; timeLeft = 15; cols = 2; }
+            else if (level === 2) { totalPairs = 4; timeLeft = 25; cols = 4; }
+            else if (level === 3) { totalPairs = 6; timeLeft = 35; cols = 4; }
+            else { totalPairs = 8; timeLeft = 40; cols = 4; }
+
+            timeVal.innerText = timeLeft + 's';
+            grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+            grid.innerHTML = '';
+
+            let deck = [];
+            for (let i = 0; i < totalPairs; i++) {
+                deck.push(ICONS[i], ICONS[i]);
+            }
+            deck.sort(() => Math.random() - 0.5);
+
+            deck.forEach(icon => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.dataset.icon = icon;
+                card.onclick = () => flipCard(card);
+                grid.appendChild(card);
+            });
+
+            timer = setInterval(() => {
+                timeLeft--;
+                timeVal.innerText = timeLeft + 's';
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    playTone(150, 'sawtooth', 0.4);
+                    showMsg("Time's Up!", "Game Over at Level " + level, false);
+                }
+            }, 1000);
+        }
+
+        function flipCard(card) {
+            if (flipped.length >= 2 || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+            playTone(400, 'sine', 0.1);
+            card.classList.add('flipped');
+            card.innerText = card.dataset.icon;
+            flipped.push(card);
+
+            if (flipped.length === 2) {
+                moves++;
+                movesVal.innerText = moves;
+                if (flipped[0].dataset.icon === flipped[1].dataset.icon) {
+                    playTone(600, 'triangle', 0.2);
+                    flipped[0].classList.add('matched');
+                    flipped[1].classList.add('matched');
+                    matchedCount++;
+                    flipped = [];
+                    if (matchedCount === totalPairs) {
+                        clearInterval(timer);
+                        playTone(800, 'sine', 0.3);
+                        setTimeout(() => {
+                            if (level < 4) {
+                                showMsg("Level Complete! 🎉", `Completed in ${moves} moves`, true);
+                            } else {
+                                showMsg("You Won All Levels! 🏆", `Master Memory Score: ${moves} moves`, false);
+                            }
+                        }, 500);
+                    }
+                } else {
+                    setTimeout(() => {
+                        flipped[0].classList.remove('flipped');
+                        flipped[1].classList.remove('flipped');
+                        flipped[0].innerText = '';
+                        flipped[1].innerText = '';
+                        flipped = [];
+                    }, 800);
+                }
+            }
+        }
+
+        function showMsg(title, desc, isNext) {
+            document.getElementById('msgTitle').innerText = title;
+            document.getElementById('msgDesc').innerText = desc;
+            const btn = document.getElementById('nextBtn');
+            btn.innerText = isNext ? "Next Level" : "Play Again";
+            btn.onclick = isNext ? nextLevel : () => { level = 1; loadLevel(); msgOverlay.style.display='none'; };
+            msgOverlay.style.display = 'flex';
+        }
+
+        function nextLevel() {
+            level++;
+            msgOverlay.style.display = 'none';
+            loadLevel();
+        }
+    </script>
 </body>
 </html>

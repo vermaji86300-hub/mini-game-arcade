@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Color Brick - Mini Arcade</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body {
+            background: #0f172a; color: #f8fafc; font-family: system-ui, sans-serif;
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow: hidden;
+        }
+        header {
+            width: 100%; max-width: 480px; display: flex; justify-content: space-between;
+            align-items: center; padding: 12px 15px;
+        }
+        .back-btn { color: #38bdf8; text-decoration: none; font-weight: 600; font-size: 15px; }
+        .stats { display: flex; gap: 15px; font-weight: bold; font-size: 16px; }
+        .game-container {
+            position: relative; width: 100%; max-width: 420px; height: 560px;
+            background: #1e293b; border-radius: 12px; overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+        .overlay {
+            position: absolute; inset: 0; background: rgba(15, 23, 42, 0.9);
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; gap: 15px; z-index: 10; padding: 20px; text-align: center;
+        }
+        .overlay h2 { font-size: 30px; color: #38bdf8; }
+        .overlay p { font-size: 16px; color: #cbd5e1; line-height: 1.5; }
+        .btn {
+            background: #0284c7; color: white; border: none; padding: 12px 28px;
+            font-size: 17px; font-weight: bold; border-radius: 8px; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4);
+        }
+        .btn:hover { background: #0369a1; }
+        .controls {
+            display: flex; gap: 12px; margin-top: 12px; width: 100%; max-width: 420px;
+            justify-content: center;
+        }
+        .color-btn {
+            flex: 1; height: 46px; border: none; border-radius: 8px;
+            font-weight: bold; font-size: 16px; color: white; cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: 0.1s;
+        }
+        .color-btn:active { transform: scale(0.95); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="../index.html" class="back-btn">← Back to Arcade</a>
+        <div class="stats">
+            <div>Score: <span id="scoreVal" style="color: #4ade80;">0</span></div>
+            <div>Lvl: <span id="lvlVal" style="color: #38bdf8;">1</span></div>
+            <div>Lives: <span id="livesVal" style="color: #f87171;">❤️❤️❤️</span></div>
+        </div>
+    </header>
+
+    <div class="game-container">
+        <canvas id="gameCanvas" width="400" height="540"></canvas>
+        
+        <div id="startScreen" class="overlay">
+            <h2>Color Brick</h2>
+            <p>Catch falling bricks with the paddle of the SAME COLOR!</p>
+            <p style="color: #38bdf8; font-size: 14px;">Tap color buttons or press 1, 2, 3, 4 to change paddle color.</p>
+            <button class="btn" onclick="startGame()">Start Game</button>
+        </div>
+
+        <div id="overScreen" class="overlay" style="display:none;">
+            <h2 style="color: #f43f5e;">Game Over</h2>
+            <p id="finalScore" style="font-size: 20px; font-weight: bold;">Score: 0</p>
+            <button class="btn" onclick="startGame()">Play Again</button>
+        </div>
+    </div>
+
+    <!-- On-screen color selection buttons for mobile & easy controls -->
+    <div class="controls">
+        <button class="color-btn" style="background: #ef4444;" onclick="changePaddleColor(0)">Red (1)</button>
+        <button class="color-btn" style="background: #3b82f6;" onclick="changePaddleColor(1)">Blue (2)</button>
+        <button class="color-btn" style="background: #22c55e;" onclick="changePaddleColor(2)">Green (3)</button>
+        <button class="color-btn" style="background: #eab308;" onclick="changePaddleColor(3)">Yellow (4)</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreVal = document.getElementById('scoreVal');
+        const lvlVal = document.getElementById('lvlVal');
+        const livesVal = document.getElementById('livesVal');
+        const startScreen = document.getElementById('startScreen');
+        const overScreen = document.getElementById('overScreen');
+
+        // Web Audio API for Retro Sound Effects
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSfx(freq, dur, type='sine') {
+            try {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + dur);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + dur);
+            } catch(e) {}
+        }
+
+        const COLORS = [
+            { name: 'Red', hex: '#ef4444' },
+            { name: 'Blue', hex: '#3b82f6' },
+            { name: 'Green', hex: '#22c55e' },
+            { name: 'Yellow', hex: '#eab308' }
+        ];
+
+        let score = 0, level = 1, lives = 3, isRunning = false;
+        let paddle = { x: 150, y: 490, w: 100, h: 16, colorIndex: 0 };
+        let bricks = [];
+        let particles = [];
+        let lastSpawn = 0;
+
+        function changePaddleColor(idx) {
+            paddle.colorIndex = idx;
+            playSfx(480 + idx * 80, 0.08, 'triangle');
+        }
+
+        window.addEventListener('keydown', e => {
+            if (e.key === '1') changePaddleColor(0);
+            if (e.key === '2') changePaddleColor(1);
+            if (e.key === '3') changePaddleColor(2);
+            if (e.key === '4') changePaddleColor(3);
+            if (e.key === 'ArrowLeft') paddle.x = Math.max(0, paddle.x - 30);
+            if (e.key === 'ArrowRight') paddle.x = Math.min(canvas.width - paddle.w, paddle.x + 30);
+        });
+
+        // Touch & Mouse paddle movement
+        function setPaddlePos(clientX) {
+            const rect = canvas.getBoundingClientRect();
+            const relX = (clientX - rect.left) * (canvas.width / rect.width);
+            paddle.x = Math.max(0, Math.min(canvas.width - paddle.w, relX - paddle.w / 2));
+        }
+
+        canvas.addEventListener('mousemove', e => setPaddlePos(e.clientX));
+        canvas.addEventListener('touchmove', e => {
+            e.preventDefault();
+            setPaddlePos(e.touches[0].clientX);
+        }, { passive: false });
+
+        function updateUI() {
+            scoreVal.innerText = score;
+            lvlVal.innerText = level;
+            livesVal.innerText = '❤️'.repeat(lives) || '💀';
+        }
+
+        function createSplash(x, y, color) {
+            for (let i = 0; i < 8; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 6,
+                    vy: (Math.random() - 0.5) * 6,
+                    color: color,
+                    life: 1
+                });
+            }
+        }
+
+        function startGame() {
+            score = 0;
+            level = 1;
+            lives = 3;
+            bricks = [];
+            particles = [];
+            paddle.colorIndex = 0;
+            paddle.w = 100;
+            updateUI();
+            startScreen.style.display = 'none';
+            overScreen.style.display = 'none';
+            isRunning = true;
+            requestAnimationFrame(gameLoop);
+        }
+
+        function gameLoop(timestamp) {
+            if (!isRunning) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Progressive difficulty: level advances every 40 points
+            level = Math.floor(score / 40) + 1;
+            updateUI();
+
+            // Spawn interval accelerates with level (starts at 1400ms down to 600ms)
+            const spawnRate = Math.max(600, 1400 - (level * 90));
+            if (timestamp - lastSpawn > spawnRate) {
+                // Color variety increases: Level 1 only Red/Blue, Level 2 adds Green, Level 3+ has all 4
+                const availableColors = Math.min(4, Math.max(2, level + 1));
+                const cIdx = Math.floor(Math.random() * availableColors);
+                bricks.push({
+                    x: Math.random() * (canvas.width - 55) + 5,
+                    y: -25,
+                    w: 48,
+                    h: 22,
+                    colorIndex: cIdx,
+                    speed: 2.2 + (level * 0.45) // Progressive falling speed
+                });
+                lastSpawn = timestamp;
+            }
+
+            // Draw Paddle
+            ctx.fillStyle = COLORS[paddle.colorIndex].hex;
+            ctx.beginPath();
+            ctx.roundRect(paddle.x, paddle.y, paddle.w, paddle.h, 6);
+            ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Particles update
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.05;
+                if (p.life <= 0) {
+                    particles.splice(i, 1);
+                } else {
+                    ctx.fillStyle = p.color;
+                    ctx.globalAlpha = p.life;
+                    ctx.fillRect(p.x, p.y, 4, 4);
+                    ctx.globalAlpha = 1.0;
+                }
+            }
+
+            // Update & check bricks
+            for (let i = bricks.length - 1; i >= 0; i--) {
+                const b = bricks[i];
+                b.y += b.speed;
+
+                // Draw Brick
+                ctx.fillStyle = COLORS[b.colorIndex].hex;
+                ctx.beginPath();
+                ctx.roundRect(b.x, b.y, b.w, b.h, 4);
+                ctx.fill();
+
+                // Paddle Catch Collision
+                if (b.y + b.h >= paddle.y && b.y <= paddle.y + paddle.h &&
+                    b.x + b.w >= paddle.x && b.x <= paddle.x + paddle.w) {
+                    
+                    if (b.colorIndex === paddle.colorIndex) {
+                        // Correct Color Match
+                        score += 10;
+                        playSfx(600 + (score % 300), 0.1, 'sine');
+                        createSplash(b.x + b.w / 2, b.y + b.h / 2, COLORS[b.colorIndex].hex);
+                    } else {
+                        // Wrong Color Match
+                        lives--;
+                        playSfx(180, 0.25, 'sawtooth');
+                        updateUI();
+                        if (lives <= 0) {
+                            endGame();
+                            return;
+                        }
+                    }
+                    bricks.splice(i, 1);
+                    continue;
+                }
+
+                // Missed Brick (Drop to floor)
+                if (b.y > canvas.height) {
+                    lives--;
+                    playSfx(160, 0.2, 'square');
+                    updateUI();
+                    if (lives <= 0) {
+                        endGame();
+                        return;
+                    }
+                    bricks.splice(i, 1);
+                }
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function endGame() {
+            isRunning = false;
+            playSfx(120, 0.4, 'sawtooth');
+            document.getElementById('finalScore').innerText = `Final Score: ${score}`;
+            overScreen.style.display = 'flex';
+        }
+    </script>
+</body>
+</html>
