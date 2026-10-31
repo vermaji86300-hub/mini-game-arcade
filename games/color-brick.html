@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Play Color Reflex Online - Free Fast Color Reaction Challenge</title>
-    <meta name="description" content="Play Color Reflex online for free. Match rapid target colors before the countdown runs out. Test your lightning speed reflexes!">
+    <meta name="description" content="Play Color Reflex online for free. Match target colors before the countdown runs out. Climb the Top 5 leaderboard!">
     <link rel="canonical" href="https://mini-game-arcade-three.vercel.app/games/color-brick.html">
 
     <style>
@@ -109,36 +109,58 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 20px;
+            padding: 16px;
             z-index: 10;
         }
         .overlay.hidden { display: none; }
         .neon-title {
-            font-size: 30px;
+            font-size: 28px;
             font-weight: 900;
             color: #eab308;
             text-shadow: 0 0 15px rgba(234, 179, 8, 0.8);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+        }
+        .leaderboard-box {
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 8px 14px;
+            width: 100%;
+            max-width: 250px;
+            margin-bottom: 12px;
+            text-align: left;
+        }
+        .lb-title {
+            font-size: 11px;
+            font-weight: 800;
+            color: #eab308;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        #leaderboard-list {
+            padding-left: 20px;
+            font-size: 12px;
+            color: #cbd5e1;
+            line-height: 1.4;
         }
         .play-btn {
             background: linear-gradient(135deg, #eab308, #ca8a04);
             border: none;
             color: #000;
             font-weight: 800;
-            padding: 12px 28px;
-            font-size: 16px;
+            padding: 10px 24px;
+            font-size: 15px;
             border-radius: 30px;
             cursor: pointer;
             box-shadow: 0 0 15px rgba(234, 179, 8, 0.5);
-            margin-top: 14px;
         }
         .share-btn {
-            margin-top: 10px;
+            margin-top: 8px;
             background: #25d366;
             color: #fff;
-            padding: 8px 18px;
+            padding: 6px 16px;
             border-radius: 20px;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: bold;
             text-decoration: none;
         }
@@ -154,7 +176,7 @@
             line-height: 1.6;
             color: #94a3b8;
         }
-        .seo-box h2 { font-size: 16px; color: #eab308; margin-bottom: 6px; }
+        .seo-box h2 { font-size: 15px; color: #eab308; margin-bottom: 6px; }
     </style>
 </head>
 <body>
@@ -182,13 +204,19 @@
 
         <div id="start-screen" class="overlay">
             <h1 class="neon-title">COLOR REFLEX</h1>
-            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 14px;">Tap the button matching the target color text.<br>Timer shrinks faster with every correct streak!</p>
+            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 14px;">Tap button matching target color text.<br>Timer shrinks faster with every streak!</p>
             <button id="start-btn" class="play-btn">START GAME</button>
         </div>
 
         <div id="gameover-screen" class="overlay hidden">
             <h2 class="neon-title" style="color: #ef4444;">TIME OUT!</h2>
-            <p style="color: #94a3b8; font-size: 14px; margin-bottom: 12px;">Final Score: <strong id="final-score" style="color:#eab308; font-size: 20px;">0</strong></p>
+            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 12px;">Final Score: <strong id="final-score" style="color:#eab308; font-size: 18px;">0</strong></p>
+
+            <div class="leaderboard-box">
+                <div class="lb-title">🏆 TOP 5 SCORES</div>
+                <ol id="leaderboard-list"></ol>
+            </div>
+
             <button id="restart-btn" class="play-btn">TRY AGAIN</button>
             <a id="whatsapp-share" class="share-btn" target="_blank" href="#">Share on WhatsApp</a>
         </div>
@@ -196,7 +224,7 @@
 
     <article class="seo-box">
         <h2>Stroop Effect Reflex Testing</h2>
-        <p>Color Reflex pushes visual response speed. Read the color name carefully before tapping the corresponding button, as reaction windows scale down progressively.</p>
+        <p>Read color text carefully and respond before the timer expires to secure your spot on the Top 5 leaderboard.</p>
     </article>
 
     <script>
@@ -242,6 +270,21 @@
             soundEnabled = !soundEnabled;
             soundBtn.textContent = soundEnabled ? '🔊 Sound' : '🔇 Muted';
         });
+
+        // Top 5 Leaderboard
+        function updateLeaderboard(newScore) {
+            let scores = JSON.parse(localStorage.getItem('color_reflex_top5') || '[]');
+            if (newScore > 0) {
+                scores.push(newScore);
+                scores.sort((a, b) => b - a);
+                scores = scores.slice(0, 5);
+                localStorage.setItem('color_reflex_top5', JSON.stringify(scores));
+            }
+            const list = document.getElementById('leaderboard-list');
+            list.innerHTML = scores.length
+                ? scores.map((s) => `<li><span style="color:#eab308">${s} pts</span></li>`).join('')
+                : '<li>No scores yet</li>';
+        }
 
         const colorList = [
             { name: 'RED', hex: '#ef4444' },
@@ -289,8 +332,9 @@
                 highScoreEl.textContent = highScore;
             }
             finalScoreEl.textContent = score;
+            updateLeaderboard(score);
 
-            const text = encodeURIComponent(`⚡ I got a score of ${score} in Color Reflex! Test your reflexes here: https://mini-game-arcade-three.vercel.app/games/color-brick.html`);
+            const text = encodeURIComponent(`⚡ I scored ${score} in Color Reflex! Beat my leaderboard record: https://mini-game-arcade-three.vercel.app/games/color-brick.html`);
             whatsappBtn.href = `https://api.whatsapp.com/send?text=${text}`;
             gameoverScreen.classList.remove('hidden');
         }
@@ -303,9 +347,7 @@
                 timeLeft -= speed;
                 timerBar.style.width = Math.max(0, timeLeft) + '%';
 
-                if (timeLeft <= 0) {
-                    triggerGameOver();
-                }
+                if (timeLeft <= 0) triggerGameOver();
             }, 30);
         }
 

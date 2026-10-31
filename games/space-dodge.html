@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Play Space Dodge Online - Free Sci-Fi Asteroid Arcade</title>
-    <meta name="description" content="Play Space Dodge online for free. Pilot your starship through infinite waves of accelerating asteroids and space hazards. Zero download required.">
+    <meta name="description" content="Play Space Dodge online for free. Pilot your starship through infinite waves of accelerating asteroids and compete on the Top 5 leaderboard.">
     <link rel="canonical" href="https://mini-game-arcade-three.vercel.app/games/space-dodge.html">
 
     <style>
@@ -56,43 +56,66 @@
         .overlay {
             position: absolute;
             inset: 0;
-            background: rgba(4, 6, 12, 0.9);
+            background: rgba(4, 6, 12, 0.92);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 20px;
+            padding: 16px;
             backdrop-filter: blur(4px);
             z-index: 10;
         }
         .overlay.hidden { display: none; }
         .neon-title {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 900;
             color: #a855f7;
             text-shadow: 0 0 15px rgba(168, 85, 247, 0.8);
             letter-spacing: 2px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+        }
+        .leaderboard-box {
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 8px 14px;
+            width: 100%;
+            max-width: 250px;
+            margin-bottom: 12px;
+            text-align: left;
+        }
+        .lb-title {
+            font-size: 11px;
+            font-weight: 800;
+            color: #a855f7;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        #leaderboard-list {
+            padding-left: 20px;
+            font-size: 12px;
+            color: #cbd5e1;
+            line-height: 1.4;
         }
         .play-btn {
             background: linear-gradient(135deg, #a855f7, #6b21a8);
             border: none;
             color: #fff;
             font-weight: 800;
-            padding: 12px 28px;
-            font-size: 16px;
+            padding: 10px 24px;
+            font-size: 15px;
             border-radius: 30px;
             cursor: pointer;
             box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
         }
         .share-btn {
-            margin-top: 10px;
+            margin-top: 8px;
             background: #25d366;
             color: #fff;
-            padding: 8px 18px;
+            padding: 6px 16px;
             border-radius: 20px;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: bold;
             text-decoration: none;
         }
@@ -108,7 +131,7 @@
             line-height: 1.6;
             color: #94a3b8;
         }
-        .seo-box h2 { font-size: 16px; color: #a855f7; margin-bottom: 6px; }
+        .seo-box h2 { font-size: 15px; color: #a855f7; margin-bottom: 6px; }
     </style>
 </head>
 <body>
@@ -126,13 +149,19 @@
 
         <div id="start-screen" class="overlay">
             <h1 class="neon-title">SPACE DODGE</h1>
-            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 18px;">Drag mouse, touch, or use Arrow keys.<br>Dodge falling asteroids and survive deep space!</p>
+            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 14px;">Drag mouse, touch, or use Arrow keys.<br>Dodge falling asteroids and climb the ranks!</p>
             <button id="start-btn" class="play-btn">START FLIGHT</button>
         </div>
 
         <div id="gameover-screen" class="overlay hidden">
             <h2 class="neon-title" style="color: #ef4444;">SHIP DESTROYED</h2>
-            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 16px;">Distance Traveled: <strong id="final-score" style="color: #a855f7; font-size: 20px;">0</strong> km</p>
+            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 12px;">Distance Traveled: <strong id="final-score" style="color: #a855f7; font-size: 18px;">0</strong> km</p>
+
+            <div class="leaderboard-box">
+                <div class="lb-title">🏆 TOP 5 SCORES</div>
+                <ol id="leaderboard-list"></ol>
+            </div>
+
             <button id="restart-btn" class="play-btn">LAUNCH AGAIN</button>
             <a id="whatsapp-share" class="share-btn" target="_blank" href="#">Share on WhatsApp</a>
         </div>
@@ -140,7 +169,7 @@
 
     <article class="seo-box">
         <h2>Deep Space Survival Tactics</h2>
-        <p>Maneuver your starship across open lanes. Asteroid speed and spawn frequency increase every 100km. Keep your ship near the bottom center for the widest reaction window.</p>
+        <p>Keep your ship near the bottom center for maximum reaction time. Compete to claim the #1 spot on your Top 5 leaderboard.</p>
     </article>
 
     <script>
@@ -188,6 +217,21 @@
             soundBtn.textContent = soundEnabled ? '🔊 Sound' : '🔇 Muted';
         });
 
+        // Top 5 Leaderboard
+        function updateLeaderboard(newScore) {
+            let scores = JSON.parse(localStorage.getItem('space_dodge_top5') || '[]');
+            if (newScore > 0) {
+                scores.push(newScore);
+                scores.sort((a, b) => b - a);
+                scores = scores.slice(0, 5);
+                localStorage.setItem('space_dodge_top5', JSON.stringify(scores));
+            }
+            const list = document.getElementById('leaderboard-list');
+            list.innerHTML = scores.length
+                ? scores.map((s) => `<li><span style="color:#a855f7">${s} km</span></li>`).join('')
+                : '<li>No scores yet</li>';
+        }
+
         let isRunning = false;
         let score = 0;
         let highScore = parseInt(localStorage.getItem('space_dodge_high') || '0', 10);
@@ -201,7 +245,6 @@
         let leftPressed = false;
         let rightPressed = false;
 
-        // Init background stars
         for (let i = 0; i < 45; i++) {
             stars.push({
                 x: Math.random() * 440,
@@ -245,8 +288,9 @@
                 highScoreEl.textContent = highScore;
             }
             finalScoreEl.textContent = score;
+            updateLeaderboard(score);
 
-            const text = encodeURIComponent(`🚀 I dodged asteroids for ${score}km in Space Dodge! Can you beat it? https://mini-game-arcade-three.vercel.app/games/space-dodge.html`);
+            const text = encodeURIComponent(`🚀 I dodged asteroids for ${score}km in Space Dodge! Beat my score: https://mini-game-arcade-three.vercel.app/games/space-dodge.html`);
             whatsappBtn.href = `https://api.whatsapp.com/send?text=${text}`;
             gameoverScreen.classList.remove('hidden');
         }
@@ -270,11 +314,9 @@
 
             score++;
 
-            // Ship movement via keys
             if (leftPressed && ship.x > 5) ship.x -= ship.speed;
             if (rightPressed && ship.x < canvas.width - ship.w - 5) ship.x += ship.speed;
 
-            // Spawn asteroids
             spawnTimer++;
             const interval = Math.max(22, 45 - Math.floor(score / 120));
             if (spawnTimer >= interval) {
@@ -282,12 +324,10 @@
                 spawnTimer = 0;
             }
 
-            // Update asteroids
             for (let i = asteroids.length - 1; i >= 0; i--) {
                 const ast = asteroids[i];
                 ast.y += ast.vy;
 
-                // Collision check (circle vs ship box)
                 const closestX = Math.max(ship.x, Math.min(ast.x, ship.x + ship.w));
                 const closestY = Math.max(ship.y, Math.min(ast.y, ship.y + ship.h));
                 const dist = Math.hypot(ast.x - closestX, ast.y - closestY);
@@ -297,16 +337,12 @@
                     return;
                 }
 
-                if (ast.y > canvas.height + 40) {
-                    asteroids.splice(i, 1);
-                }
+                if (ast.y > canvas.height + 40) asteroids.splice(i, 1);
             }
 
-            // Draw Background
             ctx.fillStyle = '#04060c';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Draw Stars
             ctx.fillStyle = '#ffffff';
             for (let st of stars) {
                 st.y += st.vy;
@@ -316,7 +352,6 @@
                 ctx.fill();
             }
 
-            // Draw Asteroids
             for (let ast of asteroids) {
                 ctx.fillStyle = '#ef4444';
                 ctx.shadowBlur = 12;
@@ -326,7 +361,6 @@
                 ctx.fill();
             }
 
-            // Draw Ship (Triangle Starfighter)
             ctx.shadowBlur = 14;
             ctx.shadowColor = '#a855f7';
             ctx.fillStyle = '#a855f7';
@@ -338,7 +372,6 @@
             ctx.closePath();
             ctx.fill();
 
-            // Thruster flame
             ctx.fillStyle = '#38bdf8';
             ctx.beginPath();
             ctx.moveTo(ship.x + ship.w / 2 - 4, ship.y + ship.h - 5);
@@ -347,7 +380,6 @@
             ctx.fill();
             ctx.shadowBlur = 0;
 
-            // HUD
             ctx.fillStyle = '#ffffff';
             ctx.font = 'bold 15px sans-serif';
             ctx.fillText(`${score} KM`, 14, 26);
@@ -355,7 +387,6 @@
             requestAnimationFrame(loop);
         }
 
-        // Pointer controls
         function moveShip(clientX) {
             const rect = canvas.getBoundingClientRect();
             const x = (clientX - rect.left) * (canvas.width / rect.width);

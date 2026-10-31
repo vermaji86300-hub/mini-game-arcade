@@ -5,18 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Play Neon Runner Online - Free Fast Rhythm Dash Game</title>
     <meta name="description" content="Play Neon Runner online for free on mobile and PC. Jump over spikes and blocks at high speed with zero downloads required.">
-    <meta name="keywords" content="neon runner game, rhythm dash online, play runner unblocked, free web arcade">
     <link rel="canonical" href="https://mini-game-arcade-three.vercel.app/games/neon-runner.html">
 
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
         body {
             background: #080c14;
             color: #f8fafc;
@@ -24,12 +16,10 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             min-height: 100vh;
             padding: 10px;
-            overflow: hidden;
+            overflow-x: hidden;
         }
-
         header {
             width: 100%;
             max-width: 480px;
@@ -39,19 +29,8 @@
             margin-bottom: 8px;
             font-size: 14px;
         }
-
-        .home-link {
-            color: #38bdf8;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .stats-bar {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-
+        .home-link { color: #38bdf8; text-decoration: none; font-weight: 600; }
+        .stats-bar { display: flex; gap: 12px; align-items: center; }
         .sound-btn {
             background: #1e293b;
             border: 1px solid #334155;
@@ -61,104 +40,104 @@
             cursor: pointer;
             font-size: 12px;
         }
-
         #game-container {
             position: relative;
             width: 100%;
             max-width: 480px;
-            height: 320px;
+            height: 340px;
             background: #050811;
             border: 2px solid #00f0ff;
             box-shadow: 0 0 20px rgba(0, 240, 255, 0.25);
             border-radius: 12px;
             overflow: hidden;
         }
-
-        canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
-
+        canvas { display: block; width: 100%; height: 100%; }
         .overlay {
             position: absolute;
             inset: 0;
-            background: rgba(5, 8, 17, 0.88);
+            background: rgba(5, 8, 17, 0.92);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 20px;
+            padding: 16px;
             backdrop-filter: blur(4px);
             z-index: 10;
         }
-
-        .overlay.hidden {
-            display: none;
-        }
-
+        .overlay.hidden { display: none; }
         .neon-title {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 900;
             color: #00f0ff;
             text-shadow: 0 0 15px rgba(0, 240, 255, 0.8);
             letter-spacing: 2px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
-
-        .overlay-desc {
-            font-size: 13px;
-            color: #94a3b8;
-            margin-bottom: 18px;
-            line-height: 1.5;
+        .overlay-desc { font-size: 13px; color: #94a3b8; margin-bottom: 12px; }
+        .leaderboard-box {
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 8px 14px;
+            width: 100%;
+            max-width: 250px;
+            margin-bottom: 12px;
+            text-align: left;
         }
-
+        .lb-title {
+            font-size: 11px;
+            font-weight: 800;
+            color: #38bdf8;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        #leaderboard-list {
+            padding-left: 20px;
+            font-size: 12px;
+            color: #cbd5e1;
+            line-height: 1.4;
+        }
         .play-btn {
             background: linear-gradient(135deg, #00f0ff, #0284c7);
             border: none;
             color: #000;
             font-weight: 800;
-            padding: 12px 28px;
-            font-size: 16px;
+            padding: 10px 24px;
+            font-size: 15px;
             border-radius: 30px;
             cursor: pointer;
             box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
-            transition: transform 0.1s, box-shadow 0.1s;
         }
-
-        .play-btn:active {
-            transform: scale(0.96);
-        }
-
         .share-btn {
-            margin-top: 10px;
+            margin-top: 8px;
             background: #25d366;
             color: #fff;
-            border: none;
-            padding: 8px 18px;
+            padding: 6px 16px;
             border-radius: 20px;
-            font-size: 13px;
-            font-weight: bold;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .hints {
-            margin-top: 10px;
             font-size: 12px;
-            color: #64748b;
-            text-align: center;
+            font-weight: bold;
+            text-decoration: none;
         }
+        .seo-box {
+            width: 100%;
+            max-width: 480px;
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 14px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #94a3b8;
+        }
+        .seo-box h2 { font-size: 15px; color: #00f0ff; margin-bottom: 6px; }
     </style>
 </head>
 <body>
 
     <header>
-        <a href="https://mini-game-arcade-three.vercel.app/" class="home-link">← All Games</a>
+        <a href="/" class="home-link">← All Games</a>
         <div class="stats-bar">
             <span>High: <strong id="high-score-val" style="color:#00f0ff">0</strong></span>
             <button id="sound-toggle" class="sound-btn">🔊 Sound</button>
@@ -166,54 +145,32 @@
     </header>
 
     <div id="game-container">
-        <canvas id="gameCanvas" width="480" height="320"></canvas>
+        <canvas id="gameCanvas" width="480" height="340"></canvas>
 
-        <!-- Start Screen -->
         <div id="start-screen" class="overlay">
             <h1 class="neon-title">NEON RUNNER</h1>
-            <p class="overlay-desc">Tap screen or press Space / Up to jump!<br>Dodge spikes & blocks. Speed increases every level!</p>
+            <p class="overlay-desc">Tap screen or Space to jump.<br>Dodge spikes & blocks at sonic speed!</p>
             <button id="start-btn" class="play-btn">START GAME</button>
         </div>
-	<!-- SEO Breadcrumb, Guide & Internal Links -->
-<nav style="width: 100%; max-width: 480px; margin: 12px auto 6px; font-size: 12px; color: #64748b; text-align: left;">
-    <a href="/" style="color: #38bdf8; text-decoration: none;">Home</a> &gt; 
-    <a href="/" style="color: #38bdf8; text-decoration: none;">Reflex Games</a> &gt; 
-    <span>Neon Runner</span>
-</nav>
 
-<section style="width: 100%; max-width: 480px; background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 18px; margin: 10px auto 24px; text-align: left; font-size: 13px; line-height: 1.6; color: #94a3b8;">
-    <h2 style="font-size: 17px; color: #00f0ff; margin-bottom: 8px;">How to Play Neon Runner</h2>
-    <p style="margin-bottom: 10px;">Neon Runner is a fast-paced 2D rhythm dash arcade game. Jump over neon spike traps and elevated blocks as the speed accelerates across every stage.</p>
-    
-    <h3 style="font-size: 14px; color: #f8fafc; margin-bottom: 6px;">Controls & Strategy Tips</h3>
-    <ul style="padding-left: 18px; margin-bottom: 14px;">
-        <li><strong>Jump Timing:</strong> Tap screen or press <code>Space</code> / <code>Up Arrow</code> to execute instant jumps.</li>
-        <li><strong>Focus Forward:</strong> Watch the incoming obstacle queue on the right edge of the screen rather than looking at your cube.</li>
-        <li><strong>Tall Obstacles:</strong> Jump early to clear high purple barriers smoothly.</li>
-    </ul>
-
-    <h3 style="font-size: 14px; color: #38bdf8; margin-bottom: 8px;">More Free Instant Arcade Games</h3>
-    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-        <a href="cyber-flap.html" style="background: #1e293b; color: #cbd5e1; padding: 6px 12px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 600;">🛸 Cyber Flap</a>
-        <a href="fruit-slice.html" style="background: #1e293b; color: #cbd5e1; padding: 6px 12px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 600;">🍉 Fruit Slicer</a>
-        <a href="snake.html" style="background: #1e293b; color: #cbd5e1; padding: 6px 12px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 600;">🐍 Snake Classic</a>
-    </div>
-</section>
-        <!-- Game Over Screen -->
         <div id="gameover-screen" class="overlay hidden">
-            <h2 class="neon-title" style="color: #ff0055; text-shadow: 0 0 15px rgba(255,0,85,0.8);">GAME OVER</h2>
-            <p class="overlay-desc">
-                Score: <strong id="final-score" style="color: #00f0ff; font-size: 18px;">0</strong> | 
-                Level: <strong id="final-level" style="color: #a855f7;">1</strong>
-            </p>
+            <h2 class="neon-title" style="color: #ff0055;">GAME OVER</h2>
+            <p class="overlay-desc">Score: <strong id="final-score" style="color: #00f0ff; font-size: 16px;">0</strong> | Lvl: <strong id="final-level" style="color: #a855f7;">1</strong></p>
+
+            <div class="leaderboard-box">
+                <div class="lb-title">🏆 TOP 5 SCORES</div>
+                <ol id="leaderboard-list"></ol>
+            </div>
+
             <button id="restart-btn" class="play-btn">PLAY AGAIN</button>
-            <a id="whatsapp-share" class="share-btn" target="_blank" href="#">
-                Share on WhatsApp
-            </a>
+            <a id="whatsapp-share" class="share-btn" target="_blank" href="#">Share on WhatsApp</a>
         </div>
     </div>
 
-    <p class="hints">Controls: Press <strong>Space</strong> or <strong>Tap Screen</strong> to Jump</p>
+    <article class="seo-box">
+        <h2>How to Play Neon Runner</h2>
+        <p>Jump to avoid neon hazards. Speed ramps up every 50 points. Compete against your personal Top 5 leaderboard records!</p>
+    </article>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
@@ -228,18 +185,15 @@
         const soundBtn = document.getElementById('sound-toggle');
         const whatsappBtn = document.getElementById('whatsapp-share');
 
-        // Web Audio Synthesizer
         let audioCtx = null;
         let soundEnabled = true;
 
         function initAudio() {
             if (!audioCtx) {
-                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-                audioCtx = new AudioContextClass();
+                const AudioClass = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioClass();
             }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
         }
 
         function playBeep(freq, type = 'square', duration = 0.08, endFreq = null) {
@@ -249,9 +203,7 @@
                 const gain = audioCtx.createGain();
                 osc.type = type;
                 osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-                if (endFreq) {
-                    osc.frequency.exponentialRampToValueAtTime(endFreq, audioCtx.currentTime + duration);
-                }
+                if (endFreq) osc.frequency.exponentialRampToValueAtTime(endFreq, audioCtx.currentTime + duration);
                 gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
                 gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + duration);
                 osc.connect(gain);
@@ -267,43 +219,40 @@
             soundBtn.textContent = soundEnabled ? '🔊 Sound' : '🔇 Muted';
         });
 
-        // Game State
+        // Top 5 Leaderboard Storage
+        function updateLeaderboard(newScore) {
+            let scores = JSON.parse(localStorage.getItem('neon_runner_top5') || '[]');
+            if (newScore > 0) {
+                scores.push(newScore);
+                scores.sort((a, b) => b - a);
+                scores = scores.slice(0, 5);
+                localStorage.setItem('neon_runner_top5', JSON.stringify(scores));
+            }
+            const list = document.getElementById('leaderboard-list');
+            list.innerHTML = scores.length
+                ? scores.map((s) => `<li><span style="color:#00f0ff">${s} pts</span></li>`).join('')
+                : '<li>No scores yet</li>';
+        }
+
         let isRunning = false;
-        let animationFrameId = null;
         let score = 0;
         let highScore = parseInt(localStorage.getItem('neon_runner_high') || '0', 10);
         highScoreEl.textContent = highScore;
 
-        const groundY = 270;
+        const groundY = 290;
         let gameSpeed = 5.5;
         let obstacleTimer = 0;
 
-        // Player
-        const player = {
-            x: 50,
-            y: groundY - 28,
-            w: 26,
-            h: 26,
-            vy: 0,
-            gravity: 0.85,
-            jumpStrength: -13.5,
-            grounded: true,
-            rot: 0
-        };
-
+        const player = { x: 50, y: groundY - 26, w: 26, h: 26, vy: 0, gravity: 0.85, jumpStrength: -13.5, grounded: true, rot: 0 };
         let obstacles = [];
         let particles = [];
 
         function spawnParticles(x, y, color, count = 12) {
             for (let i = 0; i < count; i++) {
                 particles.push({
-                    x: x,
-                    y: y,
-                    vx: (Math.random() - 0.5) * 7,
-                    vy: (Math.random() - 0.5) * 7,
-                    life: 1.0,
-                    color: color,
-                    size: Math.random() * 3.5 + 1.5
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 7, vy: (Math.random() - 0.5) * 7,
+                    life: 1.0, color: color, size: Math.random() * 3 + 1
                 });
             }
         }
@@ -314,39 +263,14 @@
                 player.vy = player.jumpStrength;
                 player.grounded = false;
                 playBeep(320, 'square', 0.12, 640);
-                spawnParticles(player.x + 13, player.y + 26, '#00f0ff', 6);
+                spawnParticles(player.x + 13, player.y + 26, '#00f0ff', 5);
             }
-        }
-
-        function spawnObstacle() {
-            const level = Math.floor(score / 50) + 1;
-            const isTall = Math.random() < 0.35 && level >= 2;
-            const w = isTall ? 20 : 22;
-            const h = isTall ? 44 : 26;
-
-            obstacles.push({
-                x: canvas.width + 20,
-                y: groundY - h,
-                w: w,
-                h: h,
-                color: isTall ? '#ff0055' : '#a855f7'
-            });
-        }
-
-        function checkCollision(p, o) {
-            return (
-                p.x + 3 < o.x + o.w &&
-                p.x + p.w - 3 > o.x &&
-                p.y + 3 < o.y + o.h &&
-                p.y + p.h - 2 > o.y
-            );
         }
 
         function triggerGameOver() {
             isRunning = false;
-            cancelAnimationFrame(animationFrameId);
             playBeep(180, 'sawtooth', 0.35, 40);
-            spawnParticles(player.x + 13, player.y + 13, '#ff0055', 25);
+            spawnParticles(player.x + 13, player.y + 13, '#ff0055', 20);
 
             if (score > highScore) {
                 highScore = score;
@@ -358,11 +282,10 @@
             finalScoreEl.textContent = score;
             finalLevelEl.textContent = currentLevel;
 
-            const shareText = encodeURIComponent(
-                `⚡ I scored ${score} pts (Level ${currentLevel}) in Neon Runner! Can you beat my high score? Play here: https://mini-game-arcade-three.vercel.app/games/neon-runner.html`
-            );
-            whatsappBtn.href = `https://api.whatsapp.com/send?text=${shareText}`;
+            updateLeaderboard(score);
 
+            const shareText = encodeURIComponent(`⚡ I scored ${score} pts in Neon Runner! Beat my leaderboard score: https://mini-game-arcade-three.vercel.app/games/neon-runner.html`);
+            whatsappBtn.href = `https://api.whatsapp.com/send?text=${shareText}`;
             gameoverScreen.classList.remove('hidden');
         }
 
@@ -372,7 +295,7 @@
             obstacleTimer = 0;
             obstacles = [];
             particles = [];
-            player.y = groundY - 28;
+            player.y = groundY - 26;
             player.vy = 0;
             player.grounded = true;
             player.rot = 0;
@@ -381,15 +304,16 @@
             isRunning = true;
             initAudio();
             playBeep(440, 'sine', 0.1, 880);
-            gameLoop();
+            loop();
         }
 
-        function update() {
+        function loop() {
+            if (!isRunning) return;
+
             score++;
             const level = Math.floor(score / 50) + 1;
             gameSpeed = 5.5 + Math.min(level * 0.45, 6.0);
 
-            // Player physics
             player.vy += player.gravity;
             player.y += player.vy;
 
@@ -402,11 +326,16 @@
                 player.rot += 0.12;
             }
 
-            // Obstacles
             obstacleTimer++;
-            const spawnInterval = Math.max(55, 95 - level * 3);
-            if (obstacleTimer >= spawnInterval) {
-                spawnObstacle();
+            if (obstacleTimer >= Math.max(55, 95 - level * 3)) {
+                const isTall = Math.random() < 0.35 && level >= 2;
+                obstacles.push({
+                    x: canvas.width + 20,
+                    y: groundY - (isTall ? 44 : 26),
+                    w: isTall ? 20 : 22,
+                    h: isTall ? 44 : 26,
+                    color: isTall ? '#ff0055' : '#a855f7'
+                });
                 obstacleTimer = 0;
             }
 
@@ -414,32 +343,25 @@
                 const obs = obstacles[i];
                 obs.x -= gameSpeed;
 
-                if (checkCollision(player, obs)) {
+                if (player.x + 3 < obs.x + obs.w && player.x + player.w - 3 > obs.x &&
+                    player.y + 3 < obs.y + obs.h && player.y + player.h - 2 > obs.y) {
                     triggerGameOver();
                     return;
                 }
-
-                if (obs.x + obs.w < -10) {
-                    obstacles.splice(i, 1);
-                }
+                if (obs.x + obs.w < -10) obstacles.splice(i, 1);
             }
 
-            // Particles
             for (let i = particles.length - 1; i >= 0; i--) {
                 const pt = particles[i];
                 pt.x += pt.vx;
                 pt.y += pt.vy;
-                pt.life -= 0.035;
-                if (pt.life <= 0) {
-                    particles.splice(i, 1);
-                }
+                pt.life -= 0.04;
+                if (pt.life <= 0) particles.splice(i, 1);
             }
-        }
 
-        function render() {
+            // Draw
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Ground & Neon Grid
             ctx.strokeStyle = '#00f0ff';
             ctx.shadowBlur = 10;
             ctx.shadowColor = '#00f0ff';
@@ -449,18 +371,6 @@
             ctx.lineTo(canvas.width, groundY);
             ctx.stroke();
 
-            // Background horizon lines
-            ctx.strokeStyle = 'rgba(0, 240, 255, 0.08)';
-            ctx.lineWidth = 1;
-            ctx.shadowBlur = 0;
-            for (let y = groundY + 10; y < canvas.height; y += 14) {
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(canvas.width, y);
-                ctx.stroke();
-            }
-
-            // Obstacles
             for (const obs of obstacles) {
                 ctx.fillStyle = obs.color;
                 ctx.shadowBlur = 12;
@@ -468,7 +378,6 @@
                 ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
             }
 
-            // Particles
             for (const pt of particles) {
                 ctx.globalAlpha = Math.max(0, pt.life);
                 ctx.fillStyle = pt.color;
@@ -478,7 +387,6 @@
             }
             ctx.globalAlpha = 1.0;
 
-            // Player Cube with Rotation
             ctx.save();
             ctx.translate(player.x + player.w / 2, player.y + player.h / 2);
             ctx.rotate(player.rot);
@@ -488,35 +396,24 @@
             ctx.fillRect(-player.w / 2, -player.h / 2, player.w, player.h);
             ctx.restore();
 
-            // HUD Score & Level
             ctx.shadowBlur = 0;
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 15px -apple-system, BlinkMacSystemFont, sans-serif';
-            ctx.textAlign = 'left';
+            ctx.font = 'bold 14px sans-serif';
             ctx.fillText(`SCORE: ${score}`, 16, 26);
             ctx.fillStyle = '#a855f7';
-            ctx.fillText(`LVL ${Math.floor(score / 50) + 1}`, 16, 46);
+            ctx.fillText(`LVL ${level}`, 16, 44);
+
+            requestAnimationFrame(loop);
         }
 
-        function gameLoop() {
-            if (!isRunning) return;
-            update();
-            render();
-            animationFrameId = requestAnimationFrame(gameLoop);
-        }
-
-        // Event Listeners
         startBtn.addEventListener('click', resetGame);
         restartBtn.addEventListener('click', resetGame);
 
         window.addEventListener('keydown', (e) => {
             if (e.code === 'Space' || e.key === 'ArrowUp') {
                 e.preventDefault();
-                if (isRunning) {
-                    jump();
-                } else if (!startScreen.classList.contains('hidden') || !gameoverScreen.classList.contains('hidden')) {
-                    resetGame();
-                }
+                if (isRunning) jump();
+                else resetGame();
             }
         });
 
@@ -525,9 +422,7 @@
             if (isRunning) jump();
         }, { passive: false });
 
-        canvas.addEventListener('mousedown', () => {
-            if (isRunning) jump();
-        });
+        canvas.addEventListener('mousedown', () => { if (isRunning) jump(); });
     </script>
 </body>
 </html>

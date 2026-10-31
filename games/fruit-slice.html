@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Play Fruit Slicer Online - Free Blade Ninja Arcade Game</title>
-    <meta name="description" content="Play Fruit Slicer online for free. Slice flying juicy fruits, avoid dangerous bombs, and build high combo scores. Pure browser action.">
+    <meta name="description" content="Play Fruit Slicer online for free. Slice flying fruits, avoid bombs, and build high combo scores on the Top 5 leaderboard.">
     <link rel="canonical" href="https://mini-game-arcade-three.vercel.app/games/fruit-slice.html">
 
     <style>
@@ -56,43 +56,66 @@
         .overlay {
             position: absolute;
             inset: 0;
-            background: rgba(5, 8, 17, 0.88);
+            background: rgba(5, 8, 17, 0.92);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 20px;
+            padding: 16px;
             backdrop-filter: blur(4px);
             z-index: 10;
         }
         .overlay.hidden { display: none; }
         .neon-title {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 900;
             color: #ef4444;
             text-shadow: 0 0 15px rgba(239, 68, 68, 0.8);
             letter-spacing: 2px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+        }
+        .leaderboard-box {
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 8px 14px;
+            width: 100%;
+            max-width: 250px;
+            margin-bottom: 12px;
+            text-align: left;
+        }
+        .lb-title {
+            font-size: 11px;
+            font-weight: 800;
+            color: #ef4444;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        #leaderboard-list {
+            padding-left: 20px;
+            font-size: 12px;
+            color: #cbd5e1;
+            line-height: 1.4;
         }
         .play-btn {
             background: linear-gradient(135deg, #ef4444, #b91c1c);
             border: none;
             color: #fff;
             font-weight: 800;
-            padding: 12px 28px;
-            font-size: 16px;
+            padding: 10px 24px;
+            font-size: 15px;
             border-radius: 30px;
             cursor: pointer;
             box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
         }
         .share-btn {
-            margin-top: 10px;
+            margin-top: 8px;
             background: #25d366;
             color: #fff;
-            padding: 8px 18px;
+            padding: 6px 16px;
             border-radius: 20px;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: bold;
             text-decoration: none;
         }
@@ -108,7 +131,7 @@
             line-height: 1.6;
             color: #94a3b8;
         }
-        .seo-box h2 { font-size: 16px; color: #ef4444; margin-bottom: 6px; }
+        .seo-box h2 { font-size: 15px; color: #ef4444; margin-bottom: 6px; }
     </style>
 </head>
 <body>
@@ -126,13 +149,19 @@
 
         <div id="start-screen" class="overlay">
             <h1 class="neon-title">FRUIT SLICER</h1>
-            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 18px;">Swipe or drag mouse to slice fruits.<br>Do not slice the explosive bombs (💣)!</p>
+            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 14px;">Swipe to slice flying fruits.<br>Never hit the explosive bombs (💣)!</p>
             <button id="start-btn" class="play-btn">START GAME</button>
         </div>
 
         <div id="gameover-screen" class="overlay hidden">
             <h2 class="neon-title">BOOM! GAME OVER</h2>
-            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 16px;">Final Score: <strong id="final-score" style="color: #ef4444; font-size: 20px;">0</strong></p>
+            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 12px;">Final Score: <strong id="final-score" style="color: #ef4444; font-size: 18px;">0</strong></p>
+
+            <div class="leaderboard-box">
+                <div class="lb-title">🏆 TOP 5 SCORES</div>
+                <ol id="leaderboard-list"></ol>
+            </div>
+
             <button id="restart-btn" class="play-btn">PLAY AGAIN</button>
             <a id="whatsapp-share" class="share-btn" target="_blank" href="#">Share on WhatsApp</a>
         </div>
@@ -140,7 +169,7 @@
 
     <article class="seo-box">
         <h2>Blade Ninja Slicing Strategy</h2>
-        <p>Drag across multiple fruits in a single fluid stroke to trigger combo multipliers. Let bombs drop off-screen naturally—hitting one ends the round immediately.</p>
+        <p>Slice multiple fruits in a continuous swipe. Avoid bombs to preserve your spot on the Top 5 leaderboard.</p>
     </article>
 
     <script>
@@ -188,6 +217,21 @@
             soundEnabled = !soundEnabled;
             soundBtn.textContent = soundEnabled ? '🔊 Sound' : '🔇 Muted';
         });
+
+        // Top 5 Leaderboard
+        function updateLeaderboard(newScore) {
+            let scores = JSON.parse(localStorage.getItem('fruit_slice_top5') || '[]');
+            if (newScore > 0) {
+                scores.push(newScore);
+                scores.sort((a, b) => b - a);
+                scores = scores.slice(0, 5);
+                localStorage.setItem('fruit_slice_top5', JSON.stringify(scores));
+            }
+            const list = document.getElementById('leaderboard-list');
+            list.innerHTML = scores.length
+                ? scores.map((s) => `<li><span style="color:#ef4444">${s} pts</span></li>`).join('')
+                : '<li>No scores yet</li>';
+        }
 
         let isRunning = false;
         let score = 0;
@@ -246,7 +290,9 @@
                 highScoreEl.textContent = highScore;
             }
             finalScoreEl.textContent = score;
-            const text = encodeURIComponent(`🍉 I scored ${score} in Fruit Slicer! Can you slice better? https://mini-game-arcade-three.vercel.app/games/fruit-slice.html`);
+            updateLeaderboard(score);
+
+            const text = encodeURIComponent(`🍉 I scored ${score} in Fruit Slicer! Beat my record: https://mini-game-arcade-three.vercel.app/games/fruit-slice.html`);
             whatsappBtn.href = `https://api.whatsapp.com/send?text=${text}`;
             gameoverScreen.classList.remove('hidden');
         }
@@ -294,19 +340,14 @@
                 spawnTimer = 0;
             }
 
-            // Update Fruits
             for (let i = fruits.length - 1; i >= 0; i--) {
                 const f = fruits[i];
                 f.x += f.vx;
                 f.y += f.vy;
-                f.vy += 0.28; // gravity
-
-                if (f.y > canvas.height + 60) {
-                    fruits.splice(i, 1);
-                }
+                f.vy += 0.28;
+                if (f.y > canvas.height + 60) fruits.splice(i, 1);
             }
 
-            // Update Juice Particles
             for (let i = particles.length - 1; i >= 0; i--) {
                 const p = particles[i];
                 p.x += p.vx;
@@ -315,16 +356,11 @@
                 if (p.life <= 0) particles.splice(i, 1);
             }
 
-            // Update Blade Trail
-            if (sliceTrail.length > 0) {
-                sliceTrail.shift();
-            }
+            if (sliceTrail.length > 0) sliceTrail.shift();
 
-            // Render
             ctx.fillStyle = '#0d131f';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Draw Juice
             for (const p of particles) {
                 ctx.globalAlpha = Math.max(0, p.life);
                 ctx.fillStyle = p.color;
@@ -334,17 +370,13 @@
             }
             ctx.globalAlpha = 1.0;
 
-            // Draw Fruits
             ctx.font = '30px serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             for (const f of fruits) {
-                if (!f.sliced) {
-                    ctx.fillText(f.icon, f.x, f.y);
-                }
+                if (!f.sliced) ctx.fillText(f.icon, f.x, f.y);
             }
 
-            // Draw Blade Trail
             if (sliceTrail.length > 1) {
                 ctx.strokeStyle = '#38bdf8';
                 ctx.lineWidth = 4;
@@ -359,7 +391,6 @@
                 ctx.shadowBlur = 0;
             }
 
-            // HUD
             ctx.fillStyle = '#ffffff';
             ctx.font = 'bold 18px sans-serif';
             ctx.textAlign = 'left';
@@ -368,7 +399,6 @@
             requestAnimationFrame(loop);
         }
 
-        // Pointer Events (Mouse + Touch)
         function handleMove(e) {
             if (!isRunning) return;
             const rect = canvas.getBoundingClientRect();
@@ -379,7 +409,6 @@
 
             sliceTrail.push({ x, y });
             if (sliceTrail.length > 8) sliceTrail.shift();
-
             if (isSlicing) checkSlice(x, y);
         }
 

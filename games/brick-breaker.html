@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Play Brick Breaker Online - Free Retro Paddle Arcade</title>
-    <meta name="description" content="Play Brick Breaker online for free on mobile and PC. Smash brick walls with precise paddle deflections. Pure HTML5 action.">
+    <meta name="description" content="Play Brick Breaker online for free. Smash brick walls with precise paddle deflections and top your leaderboard scores.">
     <link rel="canonical" href="https://mini-game-arcade-three.vercel.app/games/brick-breaker.html">
 
     <style>
@@ -55,43 +55,66 @@
         .overlay {
             position: absolute;
             inset: 0;
-            background: rgba(5, 8, 17, 0.88);
+            background: rgba(5, 8, 17, 0.92);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 20px;
+            padding: 16px;
             backdrop-filter: blur(4px);
             z-index: 10;
         }
         .overlay.hidden { display: none; }
         .neon-title {
-            font-size: 30px;
+            font-size: 28px;
             font-weight: 900;
             color: #38bdf8;
             text-shadow: 0 0 15px rgba(56, 189, 248, 0.8);
             letter-spacing: 2px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+        }
+        .leaderboard-box {
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 8px 14px;
+            width: 100%;
+            max-width: 250px;
+            margin-bottom: 12px;
+            text-align: left;
+        }
+        .lb-title {
+            font-size: 11px;
+            font-weight: 800;
+            color: #38bdf8;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        #leaderboard-list {
+            padding-left: 20px;
+            font-size: 12px;
+            color: #cbd5e1;
+            line-height: 1.4;
         }
         .play-btn {
             background: linear-gradient(135deg, #38bdf8, #0284c7);
             border: none;
             color: #000;
             font-weight: 800;
-            padding: 12px 28px;
-            font-size: 16px;
+            padding: 10px 24px;
+            font-size: 15px;
             border-radius: 30px;
             cursor: pointer;
             box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
         }
         .share-btn {
-            margin-top: 10px;
+            margin-top: 8px;
             background: #25d366;
             color: #fff;
-            padding: 8px 18px;
+            padding: 6px 16px;
             border-radius: 20px;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: bold;
             text-decoration: none;
         }
@@ -107,7 +130,7 @@
             line-height: 1.6;
             color: #94a3b8;
         }
-        .seo-box h2 { font-size: 16px; color: #38bdf8; margin-bottom: 6px; }
+        .seo-box h2 { font-size: 15px; color: #38bdf8; margin-bottom: 6px; }
     </style>
 </head>
 <body>
@@ -125,13 +148,19 @@
 
         <div id="start-screen" class="overlay">
             <h1 class="neon-title">BRICK BREAKER</h1>
-            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 18px;">Move paddle with mouse, touch, or arrows.<br>Clear all colored brick walls!</p>
+            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 14px;">Move paddle with mouse, touch, or arrows.<br>Clear all colored brick walls!</p>
             <button id="start-btn" class="play-btn">START GAME</button>
         </div>
 
         <div id="gameover-screen" class="overlay hidden">
             <h2 id="end-title" class="neon-title" style="color: #ef4444;">BALL DROPPED</h2>
-            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 16px;">Final Score: <strong id="final-score" style="color: #38bdf8; font-size: 20px;">0</strong></p>
+            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 12px;">Final Score: <strong id="final-score" style="color: #38bdf8; font-size: 18px;">0</strong></p>
+
+            <div class="leaderboard-box">
+                <div class="lb-title">🏆 TOP 5 SCORES</div>
+                <ol id="leaderboard-list"></ol>
+            </div>
+
             <button id="restart-btn" class="play-btn">PLAY AGAIN</button>
             <a id="whatsapp-share" class="share-btn" target="_blank" href="#">Share on WhatsApp</a>
         </div>
@@ -139,7 +168,7 @@
 
     <article class="seo-box">
         <h2>Breakout Angle Mechanics</h2>
-        <p>Hitting the ball with the outer edges of the paddle creates steep deflection angles, allowing you to sneak behind brick clusters for rapid cascade clears.</p>
+        <p>Deflect with paddle edges to send the ball behind brick formations for rapid scoring and Top 5 rank climbs.</p>
     </article>
 
     <script>
@@ -188,20 +217,31 @@
             soundBtn.textContent = soundEnabled ? '🔊 Sound' : '🔇 Muted';
         });
 
+        // Top 5 Leaderboard
+        function updateLeaderboard(newScore) {
+            let scores = JSON.parse(localStorage.getItem('brick_breaker_top5') || '[]');
+            if (newScore > 0) {
+                scores.push(newScore);
+                scores.sort((a, b) => b - a);
+                scores = scores.slice(0, 5);
+                localStorage.setItem('brick_breaker_top5', JSON.stringify(scores));
+            }
+            const list = document.getElementById('leaderboard-list');
+            list.innerHTML = scores.length
+                ? scores.map((s) => `<li><span style="color:#38bdf8">${s} pts</span></li>`).join('')
+                : '<li>No scores yet</li>';
+        }
+
         let isRunning = false;
         let score = 0;
         let highScore = parseInt(localStorage.getItem('brick_breaker_high') || '0', 10);
         highScoreEl.textContent = highScore;
 
-        // Paddle
         const paddle = { w: 85, h: 12, x: 177, y: 440, speed: 7 };
         let rightPressed = false;
         let leftPressed = false;
-
-        // Ball
         let ball = { x: 220, y: 300, dx: 3.5, dy: -3.5, r: 7 };
 
-        // Bricks
         const rows = 5;
         const cols = 7;
         const brickW = 54;
@@ -234,7 +274,9 @@
             endTitleEl.textContent = won ? 'YOU CLEARED IT!' : 'BALL DROPPED';
             endTitleEl.style.color = won ? '#22c55e' : '#ef4444';
 
-            const text = encodeURIComponent(`🧱 I scored ${score} in Brick Breaker! Can you beat it? https://mini-game-arcade-three.vercel.app/games/brick-breaker.html`);
+            updateLeaderboard(score);
+
+            const text = encodeURIComponent(`🧱 I scored ${score} in Brick Breaker! Beat my leaderboard score: https://mini-game-arcade-three.vercel.app/games/brick-breaker.html`);
             whatsappBtn.href = `https://api.whatsapp.com/send?text=${text}`;
             gameoverScreen.classList.remove('hidden');
         }
@@ -258,15 +300,12 @@
         function loop() {
             if (!isRunning) return;
 
-            // Move Paddle
             if (rightPressed && paddle.x < canvas.width - paddle.w) paddle.x += paddle.speed;
             if (leftPressed && paddle.x > 0) paddle.x -= paddle.speed;
 
-            // Move Ball
             ball.x += ball.dx;
             ball.y += ball.dy;
 
-            // Wall Collisions
             if (ball.x + ball.r > canvas.width || ball.x - ball.r < 0) {
                 ball.dx = -ball.dx;
                 playSound(300, 0.04);
@@ -276,7 +315,6 @@
                 playSound(300, 0.04);
             }
 
-            // Paddle Collision
             if (ball.y + ball.r >= paddle.y && ball.y - ball.r <= paddle.y + paddle.h) {
                 if (ball.x >= paddle.x && ball.x <= paddle.x + paddle.w) {
                     const hitPos = (ball.x - (paddle.x + paddle.w / 2)) / (paddle.w / 2);
@@ -286,13 +324,11 @@
                 }
             }
 
-            // Floor Drop
             if (ball.y + ball.r > canvas.height) {
                 triggerGameOver(false);
                 return;
             }
 
-            // Brick Collisions
             let activeBricks = 0;
             for (let r = 0; r < rows; r++) {
                 for (let c = 0; c < cols; c++) {
@@ -319,11 +355,9 @@
                 return;
             }
 
-            // Render
             ctx.fillStyle = '#050811';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Draw Bricks
             for (let r = 0; r < rows; r++) {
                 for (let c = 0; c < cols; c++) {
                     const b = bricks[r][c];
@@ -334,20 +368,17 @@
                 }
             }
 
-            // Draw Paddle
             ctx.fillStyle = '#38bdf8';
             ctx.shadowBlur = 10;
             ctx.shadowColor = '#38bdf8';
             ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
 
-            // Draw Ball
             ctx.fillStyle = '#ffffff';
             ctx.beginPath();
             ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
             ctx.fill();
             ctx.shadowBlur = 0;
 
-            // HUD
             ctx.fillStyle = '#94a3b8';
             ctx.font = 'bold 15px sans-serif';
             ctx.fillText(`SCORE: ${score}`, 14, 26);
@@ -355,7 +386,6 @@
             requestAnimationFrame(loop);
         }
 
-        // Pointer & Keyboard Controls
         function movePaddle(clientX) {
             const rect = canvas.getBoundingClientRect();
             const x = (clientX - rect.left) * (canvas.width / rect.width);

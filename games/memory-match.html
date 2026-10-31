@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Play Memory Match Online - Free Brain Memory Card Game</title>
-    <meta name="description" content="Play Memory Match online for free. Test your brain speed, flip cards, and match emoji pairs in the lowest moves. Instant browser puzzle.">
+    <meta name="description" content="Play Memory Match online for free. Test your brain speed, flip cards, and match emoji pairs to climb the Top 5 leaderboard.">
     <link rel="canonical" href="https://mini-game-arcade-three.vercel.app/games/memory-match.html">
 
     <style>
@@ -59,7 +59,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 32px;
+            font-size: 30px;
             cursor: pointer;
             transition: transform 0.2s, background-color 0.2s, border-color 0.2s;
         }
@@ -70,7 +70,7 @@
         .gameover-box {
             position: fixed;
             inset: 0;
-            background: rgba(5, 8, 17, 0.9);
+            background: rgba(5, 8, 17, 0.92);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -81,30 +81,52 @@
         }
         .gameover-box.hidden { display: none; }
         .neon-title {
-            font-size: 30px;
+            font-size: 28px;
             font-weight: 900;
             color: #22c55e;
             text-shadow: 0 0 15px rgba(34, 197, 94, 0.8);
+            margin-bottom: 6px;
+        }
+        .leaderboard-box {
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 8px 14px;
+            width: 100%;
+            max-width: 250px;
             margin-bottom: 12px;
+            text-align: left;
+        }
+        .lb-title {
+            font-size: 11px;
+            font-weight: 800;
+            color: #22c55e;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        #leaderboard-list {
+            padding-left: 20px;
+            font-size: 12px;
+            color: #cbd5e1;
+            line-height: 1.4;
         }
         .play-btn {
             background: linear-gradient(135deg, #22c55e, #16a34a);
             border: none;
             color: #000;
             font-weight: 800;
-            padding: 12px 28px;
-            font-size: 16px;
+            padding: 10px 24px;
+            font-size: 15px;
             border-radius: 30px;
             cursor: pointer;
-            margin-top: 14px;
         }
         .share-btn {
-            margin-top: 10px;
+            margin-top: 8px;
             background: #25d366;
             color: #fff;
-            padding: 8px 18px;
+            padding: 6px 16px;
             border-radius: 20px;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: bold;
             text-decoration: none;
         }
@@ -120,7 +142,7 @@
             line-height: 1.6;
             color: #94a3b8;
         }
-        .seo-box h2 { font-size: 16px; color: #38bdf8; margin-bottom: 6px; }
+        .seo-box h2 { font-size: 15px; color: #38bdf8; margin-bottom: 6px; }
     </style>
 </head>
 <body>
@@ -138,14 +160,20 @@
 
     <div id="gameover-box" class="gameover-box hidden">
         <h2 class="neon-title">PUZZLE SOLVED! 🎉</h2>
-        <p style="color: #cbd5e1; font-size: 15px; margin-bottom: 6px;">You matched all 8 pairs in <strong id="final-moves" style="color:#38bdf8">0</strong> moves!</p>
+        <p style="color: #cbd5e1; font-size: 14px; margin-bottom: 10px;">Solved in <strong id="final-moves" style="color:#38bdf8">0</strong> moves!</p>
+
+        <div class="leaderboard-box">
+            <div class="lb-title">🏆 TOP 5 (FEWEST MOVES)</div>
+            <ol id="leaderboard-list"></ol>
+        </div>
+
         <button id="restart-btn" class="play-btn">PLAY AGAIN</button>
         <a id="whatsapp-share" class="share-btn" target="_blank" href="#">Share on WhatsApp</a>
     </div>
 
     <article class="seo-box">
         <h2>Cognitive Memory Training</h2>
-        <p>Flip cards two at a time to discover matching pairs. Keep spatial memory active to locate matching icons in the fewest moves possible.</p>
+        <p>Flip cards two at a time. In this game, fewer moves mean a better ranking on your Top 5 leaderboard!</p>
     </article>
 
     <script>
@@ -189,6 +217,21 @@
             soundEnabled = !soundEnabled;
             soundBtn.textContent = soundEnabled ? '🔊 Sound' : '🔇 Muted';
         });
+
+        // Top 5 Leaderboard (Ascending: lowest moves is #1)
+        function updateLeaderboard(newMoves) {
+            let scores = JSON.parse(localStorage.getItem('memory_match_top5') || '[]');
+            if (newMoves > 0) {
+                scores.push(newMoves);
+                scores.sort((a, b) => a - b);
+                scores = scores.slice(0, 5);
+                localStorage.setItem('memory_match_top5', JSON.stringify(scores));
+            }
+            const list = document.getElementById('leaderboard-list');
+            list.innerHTML = scores.length
+                ? scores.map((m) => `<li><span style="color:#22c55e">${m} moves</span></li>`).join('')
+                : '<li>No scores yet</li>';
+        }
 
         const emojis = ['🚀', '💎', '⚡', '🎮', '🍉', '👾', '🌟', '🔔'];
         let cards = [];
@@ -282,7 +325,9 @@
                 localStorage.setItem('memory_match_best', moves);
                 bestMovesVal.textContent = moves;
             }
-            const text = encodeURIComponent(`🧠 I solved Memory Match in ${moves} moves! Can you beat it? https://mini-game-arcade-three.vercel.app/games/memory-match.html`);
+            updateLeaderboard(moves);
+
+            const text = encodeURIComponent(`🧠 I solved Memory Match in ${moves} moves! Beat my record: https://mini-game-arcade-three.vercel.app/games/memory-match.html`);
             whatsappBtn.href = `https://api.whatsapp.com/send?text=${text}`;
             gameoverBox.classList.remove('hidden');
         }

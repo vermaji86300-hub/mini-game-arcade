@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Play Snake Classic Online - Free Retro 90s Arcade Game</title>
-    <meta name="description" content="Play classic retro snake online for free on mobile and PC. Eat food, grow longer, and beat high scores. Zero installation needed.">
+    <meta name="description" content="Play classic retro snake online for free. Eat apples, grow longer, and compete on the Top 5 leaderboard.">
     <link rel="canonical" href="https://mini-game-arcade-three.vercel.app/games/snake.html">
 
     <style>
@@ -54,47 +54,70 @@
         .overlay {
             position: absolute;
             inset: 0;
-            background: rgba(5, 8, 17, 0.88);
+            background: rgba(5, 8, 17, 0.92);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 20px;
+            padding: 16px;
             backdrop-filter: blur(4px);
             z-index: 10;
         }
         .overlay.hidden { display: none; }
         .neon-title {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 900;
             color: #22c55e;
             text-shadow: 0 0 15px rgba(34, 197, 94, 0.8);
             letter-spacing: 2px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+        }
+        .leaderboard-box {
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 8px 14px;
+            width: 100%;
+            max-width: 250px;
+            margin-bottom: 12px;
+            text-align: left;
+        }
+        .lb-title {
+            font-size: 11px;
+            font-weight: 800;
+            color: #22c55e;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        #leaderboard-list {
+            padding-left: 20px;
+            font-size: 12px;
+            color: #cbd5e1;
+            line-height: 1.4;
         }
         .play-btn {
             background: linear-gradient(135deg, #22c55e, #16a34a);
             border: none;
             color: #000;
             font-weight: 800;
-            padding: 12px 28px;
-            font-size: 16px;
+            padding: 10px 24px;
+            font-size: 15px;
             border-radius: 30px;
             cursor: pointer;
             box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
         }
         .mobile-dpad {
             display: grid;
-            grid-template-columns: repeat(3, 50px);
+            grid-template-columns: repeat(3, 48px);
             gap: 6px;
-            margin-top: 14px;
+            margin-top: 10px;
         }
         .dpad-btn {
             background: #1e293b;
             border: 1px solid #334155;
             color: #fff;
-            height: 50px;
+            height: 48px;
             border-radius: 10px;
             font-size: 18px;
             display: flex;
@@ -103,12 +126,12 @@
             cursor: pointer;
         }
         .share-btn {
-            margin-top: 10px;
+            margin-top: 8px;
             background: #25d366;
             color: #fff;
-            padding: 8px 18px;
+            padding: 6px 16px;
             border-radius: 20px;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: bold;
             text-decoration: none;
         }
@@ -124,7 +147,7 @@
             line-height: 1.6;
             color: #94a3b8;
         }
-        .seo-box h2 { font-size: 16px; color: #22c55e; margin-bottom: 6px; }
+        .seo-box h2 { font-size: 15px; color: #22c55e; margin-bottom: 6px; }
     </style>
 </head>
 <body>
@@ -142,19 +165,24 @@
 
         <div id="start-screen" class="overlay">
             <h1 class="neon-title">SNAKE CLASSIC</h1>
-            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 18px;">Use arrow keys or touch D-Pad to steer.<br>Collect energy pellets and survive!</p>
+            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 14px;">Use arrows or touch D-Pad to steer.<br>Survive and beat your best records!</p>
             <button id="start-btn" class="play-btn">START GAME</button>
         </div>
 
         <div id="gameover-screen" class="overlay hidden">
             <h2 class="neon-title" style="color: #ef4444;">GAME OVER</h2>
-            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 16px;">Score: <strong id="final-score" style="color: #22c55e; font-size: 20px;">0</strong></p>
+            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 12px;">Score: <strong id="final-score" style="color: #22c55e; font-size: 18px;">0</strong></p>
+
+            <div class="leaderboard-box">
+                <div class="lb-title">🏆 TOP 5 SCORES</div>
+                <ol id="leaderboard-list"></ol>
+            </div>
+
             <button id="restart-btn" class="play-btn">PLAY AGAIN</button>
             <a id="whatsapp-share" class="share-btn" target="_blank" href="#">Share on WhatsApp</a>
         </div>
     </div>
 
-    <!-- On-screen D-Pad for Mobile -->
     <div class="mobile-dpad">
         <div></div>
         <button class="dpad-btn" onclick="setDir('UP')">▲</button>
@@ -166,7 +194,7 @@
 
     <article class="seo-box">
         <h2>Retro Nokia Snake Rules</h2>
-        <p>Eat apples to grow. Avoid running into border walls and your own tail. The speed increases slightly as your snake length grows.</p>
+        <p>Eat apples to grow. Avoid walls and your tail to set new leaderboard highs.</p>
     </article>
 
     <script>
@@ -213,6 +241,21 @@
             soundEnabled = !soundEnabled;
             soundBtn.textContent = soundEnabled ? '🔊 Sound' : '🔇 Muted';
         });
+
+        // Top 5 Leaderboard
+        function updateLeaderboard(newScore) {
+            let scores = JSON.parse(localStorage.getItem('snake_top5') || '[]');
+            if (newScore > 0) {
+                scores.push(newScore);
+                scores.sort((a, b) => b - a);
+                scores = scores.slice(0, 5);
+                localStorage.setItem('snake_top5', JSON.stringify(scores));
+            }
+            const list = document.getElementById('leaderboard-list');
+            list.innerHTML = scores.length
+                ? scores.map((s) => `<li><span style="color:#22c55e">${s} pts</span></li>`).join('')
+                : '<li>No scores yet</li>';
+        }
 
         const gridSize = 20;
         const tileCount = 20;
@@ -263,7 +306,9 @@
                 highScoreEl.textContent = highScore;
             }
             finalScoreEl.textContent = score;
-            const text = encodeURIComponent(`🐍 I scored ${score} in Snake Classic! Can you beat it? https://mini-game-arcade-three.vercel.app/games/snake.html`);
+            updateLeaderboard(score);
+
+            const text = encodeURIComponent(`🐍 I scored ${score} in Snake Classic! Beat it: https://mini-game-arcade-three.vercel.app/games/snake.html`);
             whatsappBtn.href = `https://api.whatsapp.com/send?text=${text}`;
             gameoverScreen.classList.remove('hidden');
         }
@@ -273,13 +318,11 @@
             dy = nextDy;
             const head = { x: snake[0].x + dx, y: snake[0].y + dy };
 
-            // Wall Collision
             if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
                 triggerGameOver();
                 return;
             }
 
-            // Self Collision
             for (let i = 0; i < snake.length; i++) {
                 if (snake[i].x === head.x && snake[i].y === head.y) {
                     triggerGameOver();
@@ -297,24 +340,20 @@
                 snake.pop();
             }
 
-            // Render
             ctx.fillStyle = '#050811';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Food
             ctx.fillStyle = '#ef4444';
             ctx.shadowBlur = 10;
             ctx.shadowColor = '#ef4444';
             ctx.fillRect(food.x * gridSize + 2, food.y * gridSize + 2, gridSize - 4, gridSize - 4);
 
-            // Snake
             ctx.shadowColor = '#22c55e';
             for (let i = 0; i < snake.length; i++) {
                 ctx.fillStyle = i === 0 ? '#4ade80' : '#16a34a';
                 ctx.fillRect(snake[i].x * gridSize + 1, snake[i].y * gridSize + 1, gridSize - 2, gridSize - 2);
             }
 
-            // HUD
             ctx.shadowBlur = 0;
             ctx.fillStyle = '#fff';
             ctx.font = 'bold 16px sans-serif';
