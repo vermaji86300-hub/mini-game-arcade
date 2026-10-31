@@ -3,138 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini Game Arcade - Play Free Instant Web Games Online</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0284c7">
-    <meta name="google-site-verification" content="1JhhDRBzmW-VEfxI2T5Hvgk2sUm529lw-w_pAfpXh_s" />
-    <!-- SEO Meta Tags for Google Ranking -->
-    <meta name="description" content="Play free instant mini games online on mobile and desktop with zero downloads. Enjoy Neon Runner, Fruit Slicer, Cyber Flap, Snake Classic, and more!">
-    <meta name="keywords" content="free online games, mini web games, unblocked games, browser arcade games, neon runner, cyber flap, play instant games">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href	
-    <link rel="stylesheet" href="styles.css">
-<!-- Google Schema Markup for Games Arcade -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "Mini Game Arcade",
-      "url": "https://mini-game-arcade-three.vercel.app/",
-      "description": "Play free instant online mini games on mobile and desktop with zero download or installation.",
-      "applicationCategory": "GameApplication",
-      "operatingSystem": "All",
-      "genre": "Arcade",
-      "browserRequirements": "Requires HTML5 canvas and Web Audio support"
-    }
-    </script>
-</head>
+    <title>Mini Game Arcade - Play Free Instant HTML5 Games Online</title>
+    <meta name="description" content="Play lightweight, free online arcade games on mobile and PC. No download or install required. Instant retro arcade action.">
+    <link rel="canonical" href="https://mini-game-arcade-three.vercel.app/">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0284c7">
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: #0b111e;
+            color: #f1f5f9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 16px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: #38bdf8;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+        header p {
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1050px;
+        }
+
+        .game-card {
+            background: #111a2e;
+            border: 1px solid #1e293b;
+            border-radius: 16px;
+            padding: 24px 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            border-color: #0284c7;
+            box-shadow: 0 10px 25px rgba(2, 132, 199, 0.25);
+        }
+
+        .game-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+
+        .game-card h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #f8fafc;
+        }
+
+        .game-card p {
+            font-size: 13px;
+            color: #94a3b8;
+            line-height: 1.4;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .play-btn {
+            display: block;
+            width: 100%;
+            background: #0284c7;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 10px 0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            transition: background 0.2s;
+        }
+
+        .play-btn:hover {
+            background: #0369a1;
+        }
+
+        footer {
+            margin-top: 40px;
+            font-size: 13px;
+            color: #64748b;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
+
     <header>
-        <div class="container navbar">
-            <div class="logo">⚡ MINI ARCADE</div>
-            <nav>
-                <a href="index.html" class="active">Home</a>
-                <a href="about.html">About</a>
-                <a href="contact.html">Contact</a>
-                <a href="privacy.html">Privacy</a>
-                <a href="terms.html">Terms</a>
-            </nav>
-        </div>
+        <h1>🎮 MINI GAME ARCADE</h1>
+        <p>Instant Play HTML5 Games • No Download Required</p>
     </header>
 
-    <main class="container">
-        <section class="hero">
-            <div class="hero-badge">🎮 Instant Play • Zero Download</div>
-            <h2>Next-Gen Browser Games</h2>
-            <p>High performance 2D arcade games optimized for touch & desktop. Jump straight into the action.</p>
-        </section>
+    <main class="games-grid">
+        <!-- 1. Fruit Slicer -->
+        <div class="game-card">
+            <div class="game-icon">🍉</div>
+            <h3>Fruit Slicer</h3>
+            <p>Slice incoming fruits before they drop. Avoid explosive bombs!</p>
+            <a href="games/fruit-slice.html" class="play-btn">Play Now</a>
+        </div>
 
-        <section class="game-grid">
-            <!-- Game 1 -->
-            <div class="game-card">
-                <div class="card-badge">HOT 🔥</div>
-                <div class="game-thumb">🍉</div>
-                <h3>Fruit Slicer</h3>
-                <p>Slice incoming fruit bursts with fast reflexes. Avoid touching dangerous bombs!</p>
-                <a href="games/fruit-slice.html" class="btn">Play Now</a>
-            </div>
+        <!-- 2. Memory Match -->
+        <div class="game-card">
+            <div class="game-icon">🧠</div>
+            <h3>Memory Match</h3>
+            <p>Flip and match pairs of cards in minimum moves against time.</p>
+            <a href="games/memory-match.html" class="play-btn">Play Now</a>
+        </div>
 
-            <!-- Game 2 -->
-            <div class="game-card">
-                <div class="game-thumb">🧠</div>
-                <h3>Memory Match</h3>
-                <p>Train your visual recall by uncovering and matching hidden pairs before the clock stops.</p>
-                <a href="games/memory-match.html" class="btn">Play Now</a>
-            </div>
+        <!-- 3. Brick Breaker -->
+        <div class="game-card">
+            <div class="game-icon">🧱</div>
+            <h3>Brick Breaker</h3>
+            <p>Bounce the ball, break brick walls, and don't let it drop.</p>
+            <a href="games/brick-breaker.html" class="play-btn">Play Now</a>
+        </div>
 
-            <!-- Game 3 -->
-            <div class="game-card">
-                <div class="game-thumb">🧱</div>
-                <h3>Brick Breaker</h3>
-                <p>Classic arcade paddle action with dynamic angle rebounds and multi-tier brick walls.</p>
-                <a href="games/brick-breaker.html" class="btn">Play Now</a>
-            </div>
+        <!-- 4. Space Dodge -->
+        <div class="game-card">
+            <div class="game-icon">🚀</div>
+            <h3>Space Dodge</h3>
+            <p>Pilot your rocket and dodge endless waves of oncoming asteroids.</p>
+            <a href="games/space-dodge.html" class="play-btn">Play Now</a>
+        </div>
 
-            <!-- Game 4 -->
-            <div class="game-card">
-                <div class="card-badge">POPULAR ⭐</div>
-                <div class="game-thumb">🚀</div>
-                <h3>Space Dodge</h3>
-                <p>Maneuver your spaceship through asteroid waves with increasing atmospheric speed.</p>
-                <a href="games/space-dodge.html" class="btn">Play Now</a>
-            </div>
+        <!-- 5. Color Reflex -->
+        <div class="game-card">
+            <div class="game-icon">⚡</div>
+            <h3>Color Reflex</h3>
+            <p>Match the target color before the rapid countdown timer runs out!</p>
+            <a href="games/color-brick.html" class="play-btn">Play Now</a>
+        </div>
 
-            <!-- Game 5 -->
-            <div class="game-card">
-                <div class="card-badge">NEW ⚡</div>
-                <div class="game-thumb">🎨</div>
-                <h3>Color Brick</h3>
-                <p>Switch paddle spectrums in real-time to match and shatter descending colored blocks.</p>
-                <a href="games/color-brick.html" class="btn">Play Now</a>
-            </div>
+        <!-- 6. Neon Runner -->
+        <div class="game-card">
+            <div class="game-icon">🏃‍♂️</div>
+            <h3>Neon Runner</h3>
+            <p>Jump over spikes and neon blocks at accelerating rhythm speeds.</p>
+            <a href="games/neon-runner.html" class="play-btn">Play Now</a>
+        </div>
 
-            <!-- Game 6 -->
-            <div class="game-card">
-                <div class="game-thumb">⚡</div>
-                <h3>Color Reflex</h3>
-                <p>Fast Stroop-effect reaction puzzle. Match the ink pigment, not the printed word!</p>
-                <a href="games/color-reflex.html" class="btn">Play Now</a>
-            </div>
-            <!-- Game: Cyber Flap -->
-            <div class="game-card">
-                <div class="card-badge">TRENDING 🔥</div>
-                <div class="game-thumb">🚀</div>
-                <h3>Cyber Flap</h3>
-                <p>One-tap flight challenge. Dodge laser pillars with progressive speed!</p>
-                <a href="games/cyber-flap.html" class="btn">Play Now</a>
-            </div>
+        <!-- 7. Cyber Flap -->
+        <div class="game-card">
+            <div class="game-icon">🛸</div>
+            <h3>Cyber Flap</h3>
+            <p>Navigate laser pillars in this futuristic one-tap flight obstacle game.</p>
+            <a href="games/cyber-flap.html" class="play-btn">Play Now</a>
+        </div>
 
-            <!-- Game: Neon Runner -->
-            <div class="game-card">
-                <div class="card-badge">NEW ⚡</div>
-                <div class="game-thumb">⚡</div>
-                <h3>Neon Runner</h3>
-                <p>One-tap rhythm dash! Jump over spikes and blocks with sonic speed.</p>
-                <a href="games/neon-runner.html" class="btn">Play Now</a>
-            </div>
-        </section>
+        <!-- 8. Snake Classic -->
+        <div class="game-card">
+            <div class="game-icon">🐍</div>
+            <h3>Snake Classic</h3>
+            <p>Eat apples, grow longer, and survive the classic Nokia retro grid.</p>
+            <a href="games/snake.html" class="play-btn">Play Now</a>
+        </div>
     </main>
 
     <footer>
-        <div class="container footer-content">
-            <p>&copy; 2026 Mini Game Arcade. All rights reserved.</p>
-            <div class="footer-links">
-                <a href="privacy.html">Privacy Policy</a>
-                <a href="terms.html">Terms of Service</a>
-                <a href="contact.html">Contact Us</a>
-            </div>
-        </div>
+        <p>© 2026 Mini Game Arcade • Pure Web Audio & Canvas</p>
     </footer>
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js');
-  }
-</script>
+
 </body>
 </html>
