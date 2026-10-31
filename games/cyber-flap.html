@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cyber Flap - Mini Arcade</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body {
+            background: #090d16; color: #f8fafc; font-family: system-ui, sans-serif;
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow: hidden;
+        }
+        header {
+            width: 100%; max-width: 440px; display: flex; justify-content: space-between;
+            align-items: center; padding: 12px 18px; z-index: 10;
+        }
+        .back-btn { color: #38bdf8; text-decoration: none; font-weight: 600; font-size: 15px; }
+        .stats { display: flex; gap: 15px; font-weight: bold; font-size: 16px; }
+        .game-container {
+            position: relative; width: 100%; max-width: 420px; height: 560px;
+            background: #0f172a; border-radius: 16px; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        }
+        canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+        .overlay {
+            position: absolute; inset: 0; background: rgba(9, 13, 22, 0.88);
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; gap: 15px; z-index: 20; padding: 20px; text-align: center;
+        }
+        .overlay h2 { font-size: 32px; color: #38bdf8; font-weight: 900; }
+        .overlay p { font-size: 15px; color: #cbd5e1; line-height: 1.5; }
+        .btn {
+            background: linear-gradient(135deg, #0284c7, #38bdf8); color: #04101e;
+            border: none; padding: 12px 30px; font-size: 17px; font-weight: 800;
+            border-radius: 10px; cursor: pointer; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
+        }
+        .btn:hover { transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="../index.html" class="back-btn">← Back to Arcade</a>
+        <div class="stats">
+            <div>Score: <span id="scoreVal" style="color: #4ade80;">0</span></div>
+            <div>Best: <span id="bestVal" style="color: #fbbf24;">0</span></div>
+        </div>
+    </header>
+
+    <div class="game-container" id="gameBox">
+        <canvas id="gameCanvas" width="400" height="560"></canvas>
+
+        <div id="startScreen" class="overlay">
+            <h2>CYBER FLAP</h2>
+            <p>Tap screen or press Space to boost thrust!</p>
+            <p style="color: #38bdf8; font-size: 13px;">Fly between the laser pillars without crashing.</p>
+            <button class="btn" onclick="startGame()">Launch</button>
+        </div>
+
+        <div id="overScreen" class="overlay" style="display:none;">
+            <h2 style="color: #f43f5e;">CRASHED! 💥</h2>
+            <p id="finalScore" style="font-size: 20px; font-weight: bold;">Score: 0</p>
+            <button class="btn" onclick="startGame()">Try Again</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreVal = document.getElementById('scoreVal');
+        const bestVal = document.getElementById('bestVal');
+        const startScreen = document.getElementById('startScreen');
+        const overScreen = document.getElementById('overScreen');
+
+        // Web Audio API Sound Generator
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSfx(freq, dur, type='sine', endFreq=null) {
+            try {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                if (endFreq) osc.frequency.exponentialRampToValueAtTime(endFreq, audioCtx.currentTime + dur);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + dur);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + dur);
+            } catch(e) {}
+        }
+
+        let isRunning = false;
+        let score = 0;
+        let highScore = localStorage.getItem('cf_high') || 0;
+        bestVal.innerText = highScore;
+
+        let bird = { x: 70, y: 240, vy: 0, gravity: 0.38, jump: -6.5, size: 24 };
+        let pipes = [];
+        let particles = [];
+        let frameCount = 0;
+
+        function jump() {
+            if (!isRunning) return;
+            bird.vy = bird.jump;
+            playSfx(420, 0.1, 'sine', 750);
+            for (let i = 0; i < 4; i++) {
+                particles.push({
+                    x: bird.x, y: bird.y + bird.size / 2,
+                    vx: -(Math.random() * 3 + 2), vy: (Math.random() - 0.5) * 2,
+                    color: '#38bdf8', life: 1
+                });
+            }
+        }
+
+        window.addEventListener('keydown', e => { if (e.code === 'Space') { e.preventDefault(); jump(); } });
+        canvas.addEventListener('touchstart', e => { e.preventDefault(); jump(); }, { passive: false });
+        canvas.addEventListener('mousedown', jump);
+
+        function startGame() {
+            bird.y = 240;
+            bird.vy = 0;
+            score = 0;
+            pipes = [];
+            particles = [];
+            frameCount = 0;
+            scoreVal.innerText = score;
+            startScreen.style.display = 'none';
+            overScreen.style.display = 'none';
+            isRunning = true;
+            requestAnimationFrame(gameLoop);
+        }
+
+        function gameLoop() {
+            if (!isRunning) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            frameCount++;
+
+            // Progressive difficulty: speed aur frequency increase hoti hai
+            const speed = 2.4 + Math.min(2.0, score * 0.1);
+            const gap = Math.max(120, 155 - score * 1.5);
+            const pipeInterval = Math.max(75, Math.floor(100 - score * 0.8));
+
+            // Bird physics
+            bird.vy += bird.gravity;
+            bird.y += bird.vy;
+
+            // Spawn Pipes
+            if (frameCount % pipeInterval === 0) {
+                const pipeY = Math.floor(Math.random() * (canvas.height - gap - 120)) + 60;
+                pipes.push({ x: canvas.width, top: pipeY, bottom: pipeY + gap, passed: false });
+            }
+
+            // Draw Pipes & Collision Check
+            for (let i = pipes.length - 1; i >= 0; i--) {
+                const p = pipes[i];
+                p.x -= speed;
+
+                // Draw Neon Pillars
+                ctx.fillStyle = '#1e293b';
+                ctx.strokeStyle = '#38bdf8';
+                ctx.lineWidth = 2;
+
+                // Top Pillar
+                ctx.fillRect(p.x, 0, 52, p.top);
+                ctx.strokeRect(p.x, 0, 52, p.top);
+
+                // Bottom Pillar
+                ctx.fillRect(p.x, p.bottom, 52, canvas.height - p.bottom);
+                ctx.strokeRect(p.x, p.bottom, 52, canvas.height - p.bottom);
+
+                // Collision detection
+                if (bird.x + bird.size > p.x && bird.x < p.x + 52) {
+                    if (bird.y < p.top || bird.y + bird.size > p.bottom) {
+                        endGame();
+                        return;
+                    }
+                }
+
+                // Score check
+                if (!p.passed && p.x + 52 < bird.x) {
+                    p.passed = true;
+                    score++;
+                    scoreVal.innerText = score;
+                    playSfx(580, 0.12, 'triangle', 880);
+                    if (score > highScore) {
+                        highScore = score;
+                        localStorage.setItem('cf_high', highScore);
+                        bestVal.innerText = highScore;
+                    }
+                }
+
+                if (p.x < -60) pipes.splice(i, 1);
+            }
+
+            // Particles draw
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const pt = particles[i];
+                pt.x += pt.vx;
+                pt.y += pt.vy;
+                pt.life -= 0.04;
+                if (pt.life <= 0) {
+                    particles.splice(i, 1);
+                } else {
+                    ctx.fillStyle = pt.color;
+                    ctx.globalAlpha = pt.life;
+                    ctx.fillRect(pt.x, pt.y, 4, 4);
+                    ctx.globalAlpha = 1.0;
+                }
+            }
+
+            // Draw Jet / Bird
+            ctx.save();
+            ctx.font = '28px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🚀', bird.x + bird.size / 2, bird.y + bird.size / 2);
+            ctx.restore();
+
+            // Floor & Ceiling Collision
+            if (bird.y + bird.size >= canvas.height || bird.y <= 0) {
+                endGame();
+                return;
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function endGame() {
+            isRunning = false;
+            playSfx(140, 0.35, 'sawtooth', 40);
+            document.getElementById('finalScore').innerText = `Final Score: ${score}`;
+            overScreen.style.display = 'flex';
+        }
+    </script>
+</body>
+</html>
