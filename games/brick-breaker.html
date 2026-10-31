@@ -24,12 +24,20 @@
         .overlay {
             position: absolute; inset: 0; background: rgba(15, 23, 42, 0.9);
             display: flex; flex-direction: column; justify-content: center;
-            align-items: center; gap: 15px; z-index: 10;
+            align-items: center; gap: 12px; z-index: 10; padding: 20px; text-align: center;
         }
         .btn {
             background: #0284c7; color: white; border: none; padding: 12px 28px;
             font-size: 17px; font-weight: bold; border-radius: 8px; cursor: pointer;
         }
+        .btn:hover { background: #0369a1; }
+        .btn-whatsapp {
+            background: #25D366; color: white; border: none; padding: 12px 28px;
+            font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35); text-decoration: none;
+            display: inline-block; transition: transform 0.1s;
+        }
+        .btn-whatsapp:hover { background: #1eb956; transform: translateY(-2px); }
     </style>
 </head>
 <body>
@@ -53,6 +61,7 @@
             <h2 id="overTitle" style="color:#f43f5e;">Game Over</h2>
             <p id="finalScore">Score: 0</p>
             <button class="btn" onclick="startGame()">Play Again</button>
+            <button class="btn-whatsapp" onclick="shareOnWhatsApp()">Share on WhatsApp</button>
         </div>
     </div>
 
@@ -126,7 +135,6 @@
         }
 
         function resetBallAndPaddle() {
-            // Difficulty increases: paddle shrinks and ball base speed rises
             paddle.w = Math.max(55, 95 - (level * 8));
             paddle.x = (canvas.width - paddle.w) / 2;
             ball.x = canvas.width / 2;
@@ -146,11 +154,9 @@
             if (!isRunning) return;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Ball Movement
             ball.x += ball.dx;
             ball.y += ball.dy;
 
-            // Wall Collisions
             if (ball.x + ball.r > canvas.width || ball.x - ball.r < 0) {
                 ball.dx = -ball.dx;
                 playSfx(300, 0.05);
@@ -160,16 +166,13 @@
                 playSfx(300, 0.05);
             }
 
-            // Paddle Collision
             if (ball.y + ball.r >= paddle.y && ball.x >= paddle.x && ball.x <= paddle.x + paddle.w && ball.dy > 0) {
                 ball.dy = -ball.dy;
-                // Angle ball based on hit point
                 const hitPoint = (ball.x - (paddle.x + paddle.w / 2)) / (paddle.w / 2);
                 ball.dx = hitPoint * (4 + level * 0.5);
                 playSfx(450, 0.08, 'triangle');
             }
 
-            // Bottom Drop
             if (ball.y - ball.r > canvas.height) {
                 lives--;
                 updateUI();
@@ -184,7 +187,6 @@
                 }
             }
 
-            // Bricks Collision
             let activeBricks = 0;
             bricks.forEach(b => {
                 if (b.status === 1) {
@@ -201,7 +203,6 @@
                 }
             });
 
-            // Level Clear
             if (activeBricks === 0) {
                 level++;
                 playSfx(880, 0.3, 'sine');
@@ -210,17 +211,21 @@
                 updateUI();
             }
 
-            // Draw Paddle
             ctx.fillStyle = '#38bdf8';
             ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
 
-            // Draw Ball
             ctx.fillStyle = '#f8fafc';
             ctx.beginPath();
             ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
             ctx.fill();
 
             requestAnimationFrame(loop);
+        }
+
+        function shareOnWhatsApp() {
+            const text = "Maine Brick Breaker me " + score + " points banaye (Level " + level + ")! Kya tum ise beat kar sakte ho? Khelo yahan: " + window.location.href;
+            const url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(text);
+            window.open(url, '_blank');
         }
     </script>
 </body>

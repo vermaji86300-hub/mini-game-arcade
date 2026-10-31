@@ -14,36 +14,49 @@
             width: 100%; max-width: 440px; display: flex; justify-content: space-between;
             align-items: center; padding: 12px 15px;
         }
-        .back-btn { color: #38bdf8; text-decoration: none; font-weight: 600; }
-        .stats { display: flex; gap: 15px; font-weight: bold; }
+        .back-btn { color: #38bdf8; text-decoration: none; font-weight: 600; font-size: 15px; }
+        .stats { display: flex; gap: 15px; font-weight: bold; font-size: 16px; }
         .game-container {
             position: relative; width: 100%; max-width: 420px;
             background: #1e293b; border-radius: 12px; overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
         canvas { width: 100%; height: auto; display: block; aspect-ratio: 1; }
         .overlay {
-            position: absolute; inset: 0; background: rgba(15, 23, 42, 0.9);
+            position: absolute; inset: 0; background: rgba(15, 23, 42, 0.92);
             display: flex; flex-direction: column; justify-content: center;
-            align-items: center; gap: 15px; z-index: 10;
+            align-items: center; gap: 12px; z-index: 10; padding: 20px; text-align: center;
         }
+        .overlay h2 { font-size: 30px; color: #38bdf8; }
+        .overlay p { font-size: 15px; color: #cbd5e1; }
         .btn {
-            background: #0284c7; color: white; border: none; padding: 10px 24px;
+            background: #0284c7; color: white; border: none; padding: 12px 28px;
             font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4);
         }
+        .btn:hover { background: #0369a1; }
+        .btn-whatsapp {
+            background: #25D366; color: white; border: none; padding: 12px 28px;
+            font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35); text-decoration: none;
+            display: inline-block; transition: transform 0.1s;
+        }
+        .btn-whatsapp:hover { transform: translateY(-2px); background: #1eb956; }
         .controls {
-            display: grid; grid-template-columns: repeat(3, 60px); grid-gap: 8px;
-            margin-top: 15px;
+            display: grid; grid-template-columns: repeat(3, 64px); grid-gap: 8px;
+            margin-top: 14px;
         }
         .ctrl-btn {
-            background: #334155; color: white; border: none; border-radius: 8px;
-            height: 50px; font-size: 20px; font-weight: bold; cursor: pointer;
+            background: #334155; color: white; border: none; border-radius: 10px;
+            height: 52px; font-size: 22px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
         }
         .ctrl-btn:active { background: #0284c7; }
     </style>
 </head>
 <body>
     <header>
-        <a href="../index.html" class="back-btn">← Back</a>
+        <a href="../index.html" class="back-btn">← Back to Arcade</a>
         <div class="stats">
             <div>Score: <span id="scoreVal" style="color:#4ade80;">0</span></div>
             <div>Lvl: <span id="lvlVal" style="color:#38bdf8;">1</span></div>
@@ -52,19 +65,23 @@
 
     <div class="game-container">
         <canvas id="gameCanvas" width="400" height="400"></canvas>
+
         <div id="startScreen" class="overlay">
             <h2>Snake Classic</h2>
-            <p>Use keyboard arrows or screen pads</p>
-            <button class="btn" onclick="startGame()">Start</button>
+            <p>Use keyboard arrow keys or screen buttons.</p>
+            <p style="color:#38bdf8; font-size:13px;">Speed accelerates as your level increases!</p>
+            <button class="btn" onclick="startGame()">Start Game</button>
         </div>
+
         <div id="overScreen" class="overlay" style="display:none;">
             <h2 style="color:#f43f5e;">Game Over</h2>
-            <p id="finalScore">Score: 0</p>
+            <p id="finalScore" style="font-size: 20px; font-weight: bold;">Score: 0</p>
             <button class="btn" onclick="startGame()">Play Again</button>
+            <button class="btn-whatsapp" onclick="shareOnWhatsApp()">Share on WhatsApp</button>
         </div>
     </div>
 
-    <!-- On-screen controls for mobile -->
+    <!-- On-screen touch controls -->
     <div class="controls">
         <div></div>
         <button class="ctrl-btn" onclick="setDir('UP')">▲</button>
@@ -82,27 +99,30 @@
         const startScreen = document.getElementById('startScreen');
         const overScreen = document.getElementById('overScreen');
 
+        // Web Audio API Sound generator
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playSfx(freq, dur, type='sine') {
+        function playSfx(freq, dur, type='sine', endFreq=null) {
             try {
                 if (audioCtx.state === 'suspended') audioCtx.resume();
+                const now = audioCtx.currentTime;
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.type = type;
-                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + dur);
+                osc.frequency.setValueAtTime(freq, now);
+                if (endFreq) osc.frequency.exponentialRampToValueAtTime(endFreq, now + dur);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + dur);
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + dur);
+                osc.start(now);
+                osc.stop(now + dur);
             } catch(e) {}
         }
 
         const grid = 20;
         let snake = [{x: 160, y: 160}], dir = {x: grid, y: 0}, nextDir = {x: grid, y: 0};
         let food = {x: 80, y: 80}, score = 0, level = 1, isRunning = false;
-        let gameSpeed = 150, timer;
+        let gameSpeed = 145, timer;
 
         function setDir(d) {
             if (d === 'UP' && dir.y === 0) nextDir = {x: 0, y: -grid};
@@ -126,7 +146,7 @@
         function startGame() {
             snake = [{x: 160, y: 160}, {x: 140, y: 160}, {x: 120, y: 160}];
             dir = {x: grid, y: 0}; nextDir = {x: grid, y: 0};
-            score = 0; level = 1; gameSpeed = 140;
+            score = 0; level = 1; gameSpeed = 145;
             scoreVal.innerText = score;
             lvlVal.innerText = level;
             spawnFood();
@@ -149,13 +169,11 @@
             dir = nextDir;
             const head = {x: snake[0].x + dir.x, y: snake[0].y + dir.y};
 
-            // Wall Collisions
             if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height) {
                 gameOver();
                 return;
             }
 
-            // Self Collision
             for (let part of snake) {
                 if (part.x === head.x && part.y === head.y) {
                     gameOver();
@@ -165,16 +183,19 @@
 
             snake.unshift(head);
 
-            // Food Eat
             if (head.x === food.x && head.y === food.y) {
                 score += 10;
                 scoreVal.innerText = score;
-                playSfx(550, 0.08, 'square');
+                playSfx(560, 0.08, 'square');
                 spawnFood();
-                // Difficulty Progression: Speed accelerates every 30 points
-                level = Math.floor(score / 30) + 1;
-                lvlVal.innerText = level;
-                gameSpeed = Math.max(65, 140 - (level * 8));
+
+                const newLevel = Math.floor(score / 30) + 1;
+                if (newLevel !== level) {
+                    level = newLevel;
+                    lvlVal.innerText = level;
+                    playSfx(650, 0.15, 'sine', 950);
+                    gameSpeed = Math.max(65, 145 - (level * 8));
+                }
             } else {
                 snake.pop();
             }
@@ -198,9 +219,15 @@
 
         function gameOver() {
             isRunning = false;
-            playSfx(140, 0.3, 'sawtooth');
+            playSfx(140, 0.35, 'sawtooth');
             document.getElementById('finalScore').innerText = `Score: ${score}`;
             overScreen.style.display = 'flex';
+        }
+
+        function shareOnWhatsApp() {
+            const text = "Maine Snake Classic me " + score + " points banaye (Level " + level + ")! Kya tum mera score beat kar sakte ho? Khelo yahan: " + window.location.href;
+            const url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(text);
+            window.open(url, '_blank');
         }
     </script>
 </body>

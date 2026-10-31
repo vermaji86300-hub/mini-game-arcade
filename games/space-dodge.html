@@ -24,12 +24,20 @@
         .overlay {
             position: absolute; inset: 0; background: rgba(9, 13, 22, 0.9);
             display: flex; flex-direction: column; justify-content: center;
-            align-items: center; gap: 15px; z-index: 10;
+            align-items: center; gap: 12px; z-index: 10; padding: 20px; text-align: center;
         }
         .btn {
             background: #0284c7; color: white; border: none; padding: 12px 28px;
             font-size: 17px; font-weight: bold; border-radius: 8px; cursor: pointer;
         }
+        .btn:hover { background: #0369a1; }
+        .btn-whatsapp {
+            background: #25D366; color: white; border: none; padding: 12px 28px;
+            font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35); text-decoration: none;
+            display: inline-block; transition: transform 0.1s;
+        }
+        .btn-whatsapp:hover { background: #1eb956; transform: translateY(-2px); }
     </style>
 </head>
 <body>
@@ -52,6 +60,7 @@
             <h2 style="color:#f43f5e;">Destroyed! 💥</h2>
             <p id="finalScore">Score: 0</p>
             <button class="btn" onclick="startGame()">Try Again</button>
+            <button class="btn-whatsapp" onclick="shareOnWhatsApp()">Share on WhatsApp</button>
         </div>
     </div>
 
@@ -113,7 +122,6 @@
             if (!isRunning) return;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Stars background
             ctx.fillStyle = '#64748b';
             stars.forEach(st => {
                 st.y += 2 + level * 0.4;
@@ -121,13 +129,11 @@
                 ctx.fillRect(st.x, st.y, st.s, st.s);
             });
 
-            // Score and Level Scaling
             score++;
             scoreVal.innerText = Math.floor(score / 5);
-            level = Math.floor(score / 300) + 1;
+            level = Math.floor(score / 250) + 1;
             lvlVal.innerText = level;
 
-            // Spawn Obstacles (Frequency increases with level)
             const spawnRate = Math.max(300, 750 - (level * 50));
             if (timestamp - lastSpawn > spawnRate) {
                 enemies.push({
@@ -139,12 +145,10 @@
                 lastSpawn = timestamp;
             }
 
-            // Draw Ship
             ctx.font = `${ship.size}px sans-serif`;
             ctx.textAlign = 'center';
             ctx.fillText('🚀', ship.x + ship.size / 2, ship.y + ship.size / 2);
 
-            // Enemies Update & Collision
             for (let i = enemies.length - 1; i >= 0; i--) {
                 const en = enemies[i];
                 en.y += en.speed;
@@ -153,7 +157,6 @@
                 ctx.textAlign = 'center';
                 ctx.fillText('☄️', en.x, en.y);
 
-                // Collision Detection
                 const dist = Math.hypot((ship.x + ship.size / 2) - en.x, (ship.y + ship.size / 2) - en.y);
                 if (dist < en.radius + ship.size / 3) {
                     isRunning = false;
@@ -167,6 +170,13 @@
             }
 
             requestAnimationFrame(loop);
+        }
+
+        function shareOnWhatsApp() {
+            const finalPts = Math.floor(score / 5);
+            const text = "Maine Space Dodge me " + finalPts + " points banaye (Level " + level + ")! Kya tum mera score beat kar sakte ho? Khelo yahan: " + window.location.href;
+            const url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(text);
+            window.open(url, '_blank');
         }
     </script>
 </body>

@@ -23,18 +23,25 @@
         }
         canvas { width: 100%; height: 100%; display: block; touch-action: none; }
         .overlay {
-            position: absolute; inset: 0; background: rgba(9, 13, 22, 0.88);
+            position: absolute; inset: 0; background: rgba(9, 13, 22, 0.9);
             display: flex; flex-direction: column; justify-content: center;
-            align-items: center; gap: 15px; z-index: 20; padding: 20px; text-align: center;
+            align-items: center; gap: 12px; z-index: 20; padding: 20px; text-align: center;
         }
         .overlay h2 { font-size: 32px; color: #38bdf8; font-weight: 900; }
         .overlay p { font-size: 15px; color: #cbd5e1; line-height: 1.5; }
         .btn {
             background: linear-gradient(135deg, #0284c7, #38bdf8); color: #04101e;
-            border: none; padding: 12px 30px; font-size: 17px; font-weight: 800;
+            border: none; padding: 12px 28px; font-size: 16px; font-weight: 800;
             border-radius: 10px; cursor: pointer; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
         }
         .btn:hover { transform: translateY(-2px); }
+        .btn-whatsapp {
+            background: #25D366; color: white; border: none; padding: 12px 28px;
+            font-size: 16px; font-weight: 800; border-radius: 10px; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35); text-decoration: none;
+            display: inline-block; transition: transform 0.1s;
+        }
+        .btn-whatsapp:hover { transform: translateY(-2px); background: #1eb956; }
     </style>
 </head>
 <body>
@@ -43,7 +50,7 @@
         <a href="../index.html" class="back-btn">← Back to Arcade</a>
         <div class="stats">
             <div>Score: <span id="scoreVal" style="color: #4ade80;">0</span></div>
-            <div>Best: <span id="bestVal" style="color: #fbbf24;">0</span></div>
+            <div>Lvl: <span id="lvlVal" style="color: #38bdf8;">1</span></div>
         </div>
     </header>
 
@@ -53,7 +60,7 @@
         <div id="startScreen" class="overlay">
             <h2>CYBER FLAP</h2>
             <p>Tap screen or press Space to boost thrust!</p>
-            <p style="color: #38bdf8; font-size: 13px;">Fly between the laser pillars without crashing.</p>
+            <p style="color: #38bdf8; font-size: 13px;">Fly between laser pillars. Pillars tighten each level!</p>
             <button class="btn" onclick="startGame()">Launch</button>
         </div>
 
@@ -61,6 +68,7 @@
             <h2 style="color: #f43f5e;">CRASHED! 💥</h2>
             <p id="finalScore" style="font-size: 20px; font-weight: bold;">Score: 0</p>
             <button class="btn" onclick="startGame()">Try Again</button>
+            <button class="btn-whatsapp" onclick="shareOnWhatsApp()">Share on WhatsApp</button>
         </div>
     </div>
 
@@ -68,11 +76,10 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const scoreVal = document.getElementById('scoreVal');
-        const bestVal = document.getElementById('bestVal');
+        const lvlVal = document.getElementById('lvlVal');
         const startScreen = document.getElementById('startScreen');
         const overScreen = document.getElementById('overScreen');
 
-        // Web Audio API Sound Generator
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSfx(freq, dur, type='sine', endFreq=null) {
             try {
@@ -93,8 +100,7 @@
 
         let isRunning = false;
         let score = 0;
-        let highScore = localStorage.getItem('cf_high') || 0;
-        bestVal.innerText = highScore;
+        let level = 1;
 
         let bird = { x: 70, y: 240, vy: 0, gravity: 0.38, jump: -6.5, size: 24 };
         let pipes = [];
@@ -105,7 +111,7 @@
             if (!isRunning) return;
             bird.vy = bird.jump;
             playSfx(420, 0.1, 'sine', 750);
-            for (let i = 0; i < 4; i++) {
+            for (let i = 0; i < 5; i++) {
                 particles.push({
                     x: bird.x, y: bird.y + bird.size / 2,
                     vx: -(Math.random() * 3 + 2), vy: (Math.random() - 0.5) * 2,
@@ -122,10 +128,12 @@
             bird.y = 240;
             bird.vy = 0;
             score = 0;
+            level = 1;
             pipes = [];
             particles = [];
             frameCount = 0;
             scoreVal.innerText = score;
+            lvlVal.innerText = level;
             startScreen.style.display = 'none';
             overScreen.style.display = 'none';
             isRunning = true;
@@ -137,40 +145,35 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             frameCount++;
 
-            // Progressive difficulty: speed aur frequency increase hoti hai
-            const speed = 2.4 + Math.min(2.0, score * 0.1);
-            const gap = Math.max(120, 155 - score * 1.5);
-            const pipeInterval = Math.max(75, Math.floor(100 - score * 0.8));
+            level = Math.floor(score / 5) + 1;
+            lvlVal.innerText = level;
 
-            // Bird physics
+            const speed = 2.4 + Math.min(2.5, level * 0.4);
+            const gap = Math.max(105, 155 - level * 7);
+            const pipeInterval = Math.max(70, 100 - level * 4);
+
             bird.vy += bird.gravity;
             bird.y += bird.vy;
 
-            // Spawn Pipes
             if (frameCount % pipeInterval === 0) {
                 const pipeY = Math.floor(Math.random() * (canvas.height - gap - 120)) + 60;
                 pipes.push({ x: canvas.width, top: pipeY, bottom: pipeY + gap, passed: false });
             }
 
-            // Draw Pipes & Collision Check
             for (let i = pipes.length - 1; i >= 0; i--) {
                 const p = pipes[i];
                 p.x -= speed;
 
-                // Draw Neon Pillars
                 ctx.fillStyle = '#1e293b';
                 ctx.strokeStyle = '#38bdf8';
                 ctx.lineWidth = 2;
 
-                // Top Pillar
                 ctx.fillRect(p.x, 0, 52, p.top);
                 ctx.strokeRect(p.x, 0, 52, p.top);
 
-                // Bottom Pillar
                 ctx.fillRect(p.x, p.bottom, 52, canvas.height - p.bottom);
                 ctx.strokeRect(p.x, p.bottom, 52, canvas.height - p.bottom);
 
-                // Collision detection
                 if (bird.x + bird.size > p.x && bird.x < p.x + 52) {
                     if (bird.y < p.top || bird.y + bird.size > p.bottom) {
                         endGame();
@@ -178,23 +181,16 @@
                     }
                 }
 
-                // Score check
                 if (!p.passed && p.x + 52 < bird.x) {
                     p.passed = true;
                     score++;
                     scoreVal.innerText = score;
                     playSfx(580, 0.12, 'triangle', 880);
-                    if (score > highScore) {
-                        highScore = score;
-                        localStorage.setItem('cf_high', highScore);
-                        bestVal.innerText = highScore;
-                    }
                 }
 
                 if (p.x < -60) pipes.splice(i, 1);
             }
 
-            // Particles draw
             for (let i = particles.length - 1; i >= 0; i--) {
                 const pt = particles[i];
                 pt.x += pt.vx;
@@ -210,7 +206,6 @@
                 }
             }
 
-            // Draw Jet / Bird
             ctx.save();
             ctx.font = '28px sans-serif';
             ctx.textAlign = 'center';
@@ -218,7 +213,6 @@
             ctx.fillText('🚀', bird.x + bird.size / 2, bird.y + bird.size / 2);
             ctx.restore();
 
-            // Floor & Ceiling Collision
             if (bird.y + bird.size >= canvas.height || bird.y <= 0) {
                 endGame();
                 return;
@@ -232,6 +226,12 @@
             playSfx(140, 0.35, 'sawtooth', 40);
             document.getElementById('finalScore').innerText = `Final Score: ${score}`;
             overScreen.style.display = 'flex';
+        }
+
+        function shareOnWhatsApp() {
+            const text = "Maine Cyber Flap me " + score + " points banaye (Level " + level + ")! Kya tum mera score beat kar sakte ho? Khelo yahan: " + window.location.href;
+            const url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(text);
+            window.open(url, '_blank');
         }
     </script>
 </body>

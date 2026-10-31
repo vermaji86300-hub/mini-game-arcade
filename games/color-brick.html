@@ -25,7 +25,7 @@
         .overlay {
             position: absolute; inset: 0; background: rgba(15, 23, 42, 0.9);
             display: flex; flex-direction: column; justify-content: center;
-            align-items: center; gap: 15px; z-index: 10; padding: 20px; text-align: center;
+            align-items: center; gap: 12px; z-index: 10; padding: 20px; text-align: center;
         }
         .overlay h2 { font-size: 30px; color: #38bdf8; }
         .overlay p { font-size: 16px; color: #cbd5e1; line-height: 1.5; }
@@ -35,6 +35,13 @@
             box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4);
         }
         .btn:hover { background: #0369a1; }
+        .btn-whatsapp {
+            background: #25D366; color: white; border: none; padding: 12px 28px;
+            font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35); text-decoration: none;
+            display: inline-block; transition: transform 0.1s;
+        }
+        .btn-whatsapp:hover { background: #1eb956; transform: translateY(-2px); }
         .controls {
             display: flex; gap: 12px; margin-top: 12px; width: 100%; max-width: 420px;
             justify-content: center;
@@ -72,10 +79,10 @@
             <h2 style="color: #f43f5e;">Game Over</h2>
             <p id="finalScore" style="font-size: 20px; font-weight: bold;">Score: 0</p>
             <button class="btn" onclick="startGame()">Play Again</button>
+            <button class="btn-whatsapp" onclick="shareOnWhatsApp()">Share on WhatsApp</button>
         </div>
     </div>
 
-    <!-- On-screen color selection buttons for mobile & easy controls -->
     <div class="controls">
         <button class="color-btn" style="background: #ef4444;" onclick="changePaddleColor(0)">Red (1)</button>
         <button class="color-btn" style="background: #3b82f6;" onclick="changePaddleColor(1)">Blue (2)</button>
@@ -92,7 +99,6 @@
         const startScreen = document.getElementById('startScreen');
         const overScreen = document.getElementById('overScreen');
 
-        // Web Audio API for Retro Sound Effects
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSfx(freq, dur, type='sine') {
             try {
@@ -137,7 +143,6 @@
             if (e.key === 'ArrowRight') paddle.x = Math.min(canvas.width - paddle.w, paddle.x + 30);
         });
 
-        // Touch & Mouse paddle movement
         function setPaddlePos(clientX) {
             const rect = canvas.getBoundingClientRect();
             const relX = (clientX - rect.left) * (canvas.width / rect.width);
@@ -187,14 +192,11 @@
             if (!isRunning) return;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Progressive difficulty: level advances every 40 points
             level = Math.floor(score / 40) + 1;
             updateUI();
 
-            // Spawn interval accelerates with level (starts at 1400ms down to 600ms)
             const spawnRate = Math.max(600, 1400 - (level * 90));
             if (timestamp - lastSpawn > spawnRate) {
-                // Color variety increases: Level 1 only Red/Blue, Level 2 adds Green, Level 3+ has all 4
                 const availableColors = Math.min(4, Math.max(2, level + 1));
                 const cIdx = Math.floor(Math.random() * availableColors);
                 bricks.push({
@@ -203,12 +205,11 @@
                     w: 48,
                     h: 22,
                     colorIndex: cIdx,
-                    speed: 2.2 + (level * 0.45) // Progressive falling speed
+                    speed: 2.2 + (level * 0.45)
                 });
                 lastSpawn = timestamp;
             }
 
-            // Draw Paddle
             ctx.fillStyle = COLORS[paddle.colorIndex].hex;
             ctx.beginPath();
             ctx.roundRect(paddle.x, paddle.y, paddle.w, paddle.h, 6);
@@ -217,7 +218,6 @@
             ctx.lineWidth = 2;
             ctx.stroke();
 
-            // Particles update
             for (let i = particles.length - 1; i >= 0; i--) {
                 const p = particles[i];
                 p.x += p.vx;
@@ -233,28 +233,23 @@
                 }
             }
 
-            // Update & check bricks
             for (let i = bricks.length - 1; i >= 0; i--) {
                 const b = bricks[i];
                 b.y += b.speed;
 
-                // Draw Brick
                 ctx.fillStyle = COLORS[b.colorIndex].hex;
                 ctx.beginPath();
                 ctx.roundRect(b.x, b.y, b.w, b.h, 4);
                 ctx.fill();
 
-                // Paddle Catch Collision
                 if (b.y + b.h >= paddle.y && b.y <= paddle.y + paddle.h &&
                     b.x + b.w >= paddle.x && b.x <= paddle.x + paddle.w) {
                     
                     if (b.colorIndex === paddle.colorIndex) {
-                        // Correct Color Match
                         score += 10;
                         playSfx(600 + (score % 300), 0.1, 'sine');
                         createSplash(b.x + b.w / 2, b.y + b.h / 2, COLORS[b.colorIndex].hex);
                     } else {
-                        // Wrong Color Match
                         lives--;
                         playSfx(180, 0.25, 'sawtooth');
                         updateUI();
@@ -267,7 +262,6 @@
                     continue;
                 }
 
-                // Missed Brick (Drop to floor)
                 if (b.y > canvas.height) {
                     lives--;
                     playSfx(160, 0.2, 'square');
@@ -288,6 +282,12 @@
             playSfx(120, 0.4, 'sawtooth');
             document.getElementById('finalScore').innerText = `Final Score: ${score}`;
             overScreen.style.display = 'flex';
+        }
+
+        function shareOnWhatsApp() {
+            const text = "Maine Color Brick me " + score + " points banaye (Level " + level + ")! Kya tum mera score beat kar sakte ho? Khelo yahan: " + window.location.href;
+            const url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(text);
+            window.open(url, '_blank');
         }
     </script>
 </body>

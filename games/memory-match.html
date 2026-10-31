@@ -7,44 +7,69 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
         body {
-            background: #0f172a; color: #f8fafc; font-family: system-ui, sans-serif;
-            display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+            background: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif;
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden;
         }
         header {
             width: 100%; max-width: 500px; display: flex; justify-content: space-between;
-            align-items: center; padding: 15px 20px;
+            align-items: center; padding: 12px 18px; z-index: 10;
         }
-        .back-btn { color: #38bdf8; text-decoration: none; font-weight: 600; }
+        .back-btn { color: #38bdf8; text-decoration: none; font-weight: 600; font-size: 15px; }
         .stats { display: flex; gap: 15px; font-weight: bold; font-size: 16px; }
         .game-container {
-            width: 100%; max-width: 480px; padding: 10px; display: flex;
+            width: 100%; max-width: 460px; padding: 12px; display: flex;
             flex-direction: column; align-items: center; position: relative;
         }
         .grid {
-            display: grid; gap: 10px; width: 100%; max-width: 420px;
+            display: grid; gap: 12px; width: 100%; max-width: 420px;
             margin-top: 10px; perspective: 1000px;
         }
         .card {
-            background: #1e293b; border: 2px solid #334155; border-radius: 10px;
+            background: #1e293b; border: 2px solid #334155; border-radius: 12px;
             aspect-ratio: 1; display: flex; justify-content: center; align-items: center;
-            font-size: 32px; cursor: pointer; transition: transform 0.3s, background 0.3s;
+            font-size: 34px; cursor: pointer; transition: transform 0.35s ease, background 0.3s, border-color 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-        .card.flipped { background: #0284c7; border-color: #38bdf8; transform: rotateY(180deg); }
-        .card.matched { background: #059669; border-color: #34d399; cursor: default; }
+        .card:hover { border-color: #38bdf8; }
+        .card.flipped {
+            background: #0284c7; border-color: #38bdf8; transform: rotateY(180deg);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+        }
+        .card.matched {
+            background: #059669; border-color: #34d399; cursor: default;
+            box-shadow: 0 0 15px rgba(52, 211, 153, 0.5); animation: pulse 0.5s ease;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+            100% { transform: scale(1); }
+        }
         .overlay {
-            position: absolute; inset: 0; background: rgba(15, 23, 42, 0.9);
+            position: absolute; inset: 0; background: rgba(15, 23, 42, 0.92);
             display: flex; flex-direction: column; justify-content: center;
-            align-items: center; gap: 15px; border-radius: 12px; z-index: 20;
+            align-items: center; gap: 14px; border-radius: 16px; z-index: 20; padding: 20px; text-align: center;
         }
+        .overlay h2 { font-size: 30px; color: #38bdf8; }
+        .overlay p { font-size: 15px; color: #cbd5e1; line-height: 1.5; }
         .btn {
-            background: #0284c7; color: white; border: none; padding: 10px 24px;
-            font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer;
+            background: #0284c7; color: white; border: none; padding: 12px 28px;
+            font-size: 16px; font-weight: bold; border-radius: 10px; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4); transition: transform 0.1s;
         }
+        .btn:hover { background: #0369a1; transform: translateY(-2px); }
+        .btn-whatsapp {
+            background: #25D366; color: white; border: none; padding: 12px 28px;
+            font-size: 16px; font-weight: bold; border-radius: 10px; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35); text-decoration: none;
+            display: inline-block; transition: transform 0.1s;
+        }
+        .btn-whatsapp:hover { background: #1eb956; transform: translateY(-2px); }
     </style>
 </head>
 <body>
+
     <header>
-        <a href="../index.html" class="back-btn">← Back</a>
+        <a href="../index.html" class="back-btn">← Back to Arcade</a>
         <div class="stats">
             <div>Lvl: <span id="lvlVal" style="color:#38bdf8;">1</span></div>
             <div>Moves: <span id="movesVal" style="color:#fbbf24;">0</span></div>
@@ -54,33 +79,42 @@
 
     <div class="game-container">
         <div class="grid" id="grid"></div>
+
         <div id="startOverlay" class="overlay">
             <h2>Memory Match</h2>
             <p>Flip and match pairs before time runs out!</p>
-            <button class="btn" onclick="startGame()">Start Level 1</button>
+            <p style="color: #38bdf8; font-size: 13px;">Levels get tougher with more cards and faster timers.</p>
+            <button class="btn" onclick="startGame()">Start Game</button>
         </div>
+
         <div id="msgOverlay" class="overlay" style="display:none;">
             <h2 id="msgTitle">Game Over</h2>
             <p id="msgDesc">Score: 0</p>
             <button class="btn" id="nextBtn" onclick="nextLevel()">Continue</button>
+            <button class="btn-whatsapp" onclick="shareOnWhatsApp()">Share on WhatsApp</button>
         </div>
     </div>
 
     <script>
+        // Web Audio API Sound Effects Engine
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playTone(freq, type, duration) {
+        function playTone(freq, type, duration, endFreq = null) {
             try {
                 if (audioCtx.state === 'suspended') audioCtx.resume();
+                const now = audioCtx.currentTime;
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.type = type;
-                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+                osc.frequency.setValueAtTime(freq, now);
+                if (endFreq) {
+                    osc.frequency.exponentialRampToValueAtTime(endFreq, now + duration);
+                }
+                gain.gain.setValueAtTime(0.18, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + duration);
+                osc.start(now);
+                osc.stop(now + duration);
             } catch(e) {}
         }
 
@@ -114,12 +148,12 @@
             movesVal.innerText = moves;
             lvlVal.innerText = level;
 
-            // Difficulty levels: cards and time
+            // Progressive difficulty: cards aur time limit
             let cols = 2;
             if (level === 1) { totalPairs = 2; timeLeft = 15; cols = 2; }
-            else if (level === 2) { totalPairs = 4; timeLeft = 25; cols = 4; }
-            else if (level === 3) { totalPairs = 6; timeLeft = 35; cols = 4; }
-            else { totalPairs = 8; timeLeft = 40; cols = 4; }
+            else if (level === 2) { totalPairs = 4; timeLeft = 24; cols = 4; }
+            else if (level === 3) { totalPairs = 6; timeLeft = 32; cols = 4; }
+            else { totalPairs = 8; timeLeft = 38; cols = 4; }
 
             timeVal.innerText = timeLeft + 's';
             grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
@@ -144,15 +178,17 @@
                 timeVal.innerText = timeLeft + 's';
                 if (timeLeft <= 0) {
                     clearInterval(timer);
-                    playTone(150, 'sawtooth', 0.4);
-                    showMsg("Time's Up!", "Game Over at Level " + level, false);
+                    playTone(180, 'sawtooth', 0.4, 60);
+                    showMsg("Time's Up!", `Game Over at Level ${level}`, false);
                 }
             }, 1000);
         }
 
         function flipCard(card) {
             if (flipped.length >= 2 || card.classList.contains('flipped') || card.classList.contains('matched')) return;
-            playTone(400, 'sine', 0.1);
+            
+            // Flip sound
+            playTone(380, 'sine', 0.1, 520);
             card.classList.add('flipped');
             card.innerText = card.dataset.icon;
             flipped.push(card);
@@ -161,30 +197,37 @@
                 moves++;
                 movesVal.innerText = moves;
                 if (flipped[0].dataset.icon === flipped[1].dataset.icon) {
-                    playTone(600, 'triangle', 0.2);
+                    // Match sound
+                    playTone(550, 'triangle', 0.22, 750);
                     flipped[0].classList.add('matched');
                     flipped[1].classList.add('matched');
                     matchedCount++;
                     flipped = [];
+
                     if (matchedCount === totalPairs) {
                         clearInterval(timer);
-                        playTone(800, 'sine', 0.3);
+                        // Win chime sound
+                        setTimeout(() => playTone(600, 'sine', 0.1), 50);
+                        setTimeout(() => playTone(800, 'sine', 0.25), 150);
+
                         setTimeout(() => {
                             if (level < 4) {
-                                showMsg("Level Complete! 🎉", `Completed in ${moves} moves`, true);
+                                showMsg("Level Clear! 🎉", `Level ${level} complete in ${moves} moves!`, true);
                             } else {
-                                showMsg("You Won All Levels! 🏆", `Master Memory Score: ${moves} moves`, false);
+                                showMsg("Master Win! 🏆", `All levels beat with ${moves} total moves!`, false);
                             }
                         }, 500);
                     }
                 } else {
+                    // Mismatch buzzer sound
+                    playTone(180, 'sawtooth', 0.15);
                     setTimeout(() => {
                         flipped[0].classList.remove('flipped');
                         flipped[1].classList.remove('flipped');
                         flipped[0].innerText = '';
                         flipped[1].innerText = '';
                         flipped = [];
-                    }, 800);
+                    }, 700);
                 }
             }
         }
@@ -194,7 +237,7 @@
             document.getElementById('msgDesc').innerText = desc;
             const btn = document.getElementById('nextBtn');
             btn.innerText = isNext ? "Next Level" : "Play Again";
-            btn.onclick = isNext ? nextLevel : () => { level = 1; loadLevel(); msgOverlay.style.display='none'; };
+            btn.onclick = isNext ? nextLevel : () => { level = 1; loadLevel(); msgOverlay.style.display = 'none'; };
             msgOverlay.style.display = 'flex';
         }
 
@@ -202,6 +245,13 @@
             level++;
             msgOverlay.style.display = 'none';
             loadLevel();
+        }
+
+        // WhatsApp Share Challenge Function
+        function shareOnWhatsApp() {
+            const text = "Maine Memory Match me Level " + level + " (" + moves + " moves) complete kiya! Kya tum ise beat kar sakte ho? Khelo yahan: " + window.location.href;
+            const url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(text);
+            window.open(url, '_blank');
         }
     </script>
 </body>
