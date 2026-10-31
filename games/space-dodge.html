@@ -3,184 +3,382 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Space Dodge 2D - Dodge Meteorites & Space Debris</title>
-    <meta name="description" content="Steer your spaceship across infinite cosmic waves dodging fast meteorites. Play Space Dodge free online with zero installation.">
-    <meta name="keywords" content="space dodge online, spaceship meteorite game, 2d space runner, free browser games">
+    <title>Play Space Dodge Online - Free Sci-Fi Asteroid Arcade</title>
+    <meta name="description" content="Play Space Dodge online for free. Pilot your starship through infinite waves of accelerating asteroids and space hazards. Zero download required.">
     <link rel="canonical" href="https://mini-game-arcade-three.vercel.app/games/space-dodge.html">
+
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
         body {
-            background: #090d16; color: #f8fafc; font-family: system-ui, sans-serif;
-            display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow: hidden;
+            background: #080c14;
+            color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
+            touch-action: none;
         }
         header {
-            width: 100%; max-width: 480px; display: flex; justify-content: space-between;
-            align-items: center; padding: 12px 15px;
+            width: 100%;
+            max-width: 440px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 14px;
         }
-        .back-btn { color: #38bdf8; text-decoration: none; font-weight: 600; }
-        .stats { display: flex; gap: 15px; font-weight: bold; }
-        .game-container {
-            position: relative; width: 100%; max-width: 480px; height: 580px;
-            background: #0f172a; border-radius: 12px; overflow: hidden;
+        .home-link { color: #38bdf8; text-decoration: none; font-weight: 600; }
+        .stats-bar { display: flex; gap: 12px; align-items: center; }
+        .sound-btn {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
         }
-        canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 440px;
+            height: 480px;
+            background: #04060c;
+            border: 2px solid #a855f7;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.25);
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: crosshair;
+        }
+        canvas { display: block; width: 100%; height: 100%; }
         .overlay {
-            position: absolute; inset: 0; background: rgba(9, 13, 22, 0.9);
-            display: flex; flex-direction: column; justify-content: center;
-            align-items: center; gap: 12px; z-index: 10; padding: 20px; text-align: center;
+            position: absolute;
+            inset: 0;
+            background: rgba(4, 6, 12, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+            z-index: 10;
         }
-        .btn {
-            background: #0284c7; color: white; border: none; padding: 12px 28px;
-            font-size: 17px; font-weight: bold; border-radius: 8px; cursor: pointer;
+        .overlay.hidden { display: none; }
+        .neon-title {
+            font-size: 32px;
+            font-weight: 900;
+            color: #a855f7;
+            text-shadow: 0 0 15px rgba(168, 85, 247, 0.8);
+            letter-spacing: 2px;
+            margin-bottom: 8px;
         }
-        .btn:hover { background: #0369a1; }
-        .btn-whatsapp {
-            background: #25D366; color: white; border: none; padding: 12px 28px;
-            font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer;
-            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35); text-decoration: none;
-            display: inline-block; transition: transform 0.1s;
+        .play-btn {
+            background: linear-gradient(135deg, #a855f7, #6b21a8);
+            border: none;
+            color: #fff;
+            font-weight: 800;
+            padding: 12px 28px;
+            font-size: 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
         }
-        .btn-whatsapp:hover { background: #1eb956; transform: translateY(-2px); }
+        .share-btn {
+            margin-top: 10px;
+            background: #25d366;
+            color: #fff;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .seo-box {
+            width: 100%;
+            max-width: 440px;
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 14px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #94a3b8;
+        }
+        .seo-box h2 { font-size: 16px; color: #a855f7; margin-bottom: 6px; }
     </style>
 </head>
 <body>
+
     <header>
-        <a href="../index.html" class="back-btn">← Back</a>
-        <div class="stats">
-            <div>Score: <span id="scoreVal" style="color:#4ade80;">0</span></div>
-            <div>Lvl: <span id="lvlVal" style="color:#38bdf8;">1</span></div>
+        <a href="/" class="home-link">← All Games</a>
+        <div class="stats-bar">
+            <span>High: <strong id="high-score-val" style="color:#a855f7">0</strong></span>
+            <button id="sound-toggle" class="sound-btn">🔊 Sound</button>
         </div>
     </header>
 
-    <div class="game-container">
-        <canvas id="gameCanvas" width="480" height="580"></canvas>
-        <div id="startScreen" class="overlay">
-            <h2>Space Dodge</h2>
-            <p>Drag spaceship left/right to dodge meteorites!</p>
-            <button class="btn" onclick="startGame()">Launch</button>
+    <div id="game-container">
+        <canvas id="gameCanvas" width="440" height="480"></canvas>
+
+        <div id="start-screen" class="overlay">
+            <h1 class="neon-title">SPACE DODGE</h1>
+            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 18px;">Drag mouse, touch, or use Arrow keys.<br>Dodge falling asteroids and survive deep space!</p>
+            <button id="start-btn" class="play-btn">START FLIGHT</button>
         </div>
-        <div id="overScreen" class="overlay" style="display:none;">
-            <h2 style="color:#f43f5e;">Destroyed! 💥</h2>
-            <p id="finalScore">Score: 0</p>
-            <button class="btn" onclick="startGame()">Try Again</button>
-            <button class="btn-whatsapp" onclick="shareOnWhatsApp()">Share on WhatsApp</button>
+
+        <div id="gameover-screen" class="overlay hidden">
+            <h2 class="neon-title" style="color: #ef4444;">SHIP DESTROYED</h2>
+            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 16px;">Distance Traveled: <strong id="final-score" style="color: #a855f7; font-size: 20px;">0</strong> km</p>
+            <button id="restart-btn" class="play-btn">LAUNCH AGAIN</button>
+            <a id="whatsapp-share" class="share-btn" target="_blank" href="#">Share on WhatsApp</a>
         </div>
     </div>
+
+    <article class="seo-box">
+        <h2>Deep Space Survival Tactics</h2>
+        <p>Maneuver your starship across open lanes. Asteroid speed and spawn frequency increase every 100km. Keep your ship near the bottom center for the widest reaction window.</p>
+    </article>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const scoreVal = document.getElementById('scoreVal');
-        const lvlVal = document.getElementById('lvlVal');
-        const startScreen = document.getElementById('startScreen');
-        const overScreen = document.getElementById('overScreen');
+        const startScreen = document.getElementById('start-screen');
+        const gameoverScreen = document.getElementById('gameover-screen');
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const finalScoreEl = document.getElementById('final-score');
+        const highScoreEl = document.getElementById('high-score-val');
+        const soundBtn = document.getElementById('sound-toggle');
+        const whatsappBtn = document.getElementById('whatsapp-share');
 
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playSfx(freq, dur, type='sine') {
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioClass = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioClass();
+            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playSound(freq, duration = 0.08, type = 'sine') {
+            if (!soundEnabled || !audioCtx) return;
             try {
-                if (audioCtx.state === 'suspended') audioCtx.resume();
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.type = type;
                 osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + dur);
+                gain.gain.setValueAtTime(0.09, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + duration);
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
                 osc.start();
-                osc.stop(audioCtx.currentTime + dur);
-            } catch(e) {}
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e){}
         }
 
-        let isRunning = false, score = 0, level = 1;
-        let ship = { x: 220, y: 510, size: 34 };
-        let enemies = [], stars = [];
+        soundBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            soundEnabled = !soundEnabled;
+            soundBtn.textContent = soundEnabled ? '🔊 Sound' : '🔇 Muted';
+        });
 
-        for (let i = 0; i < 40; i++) {
-            stars.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, s: Math.random() * 2 + 1 });
-        }
+        let isRunning = false;
+        let score = 0;
+        let highScore = parseInt(localStorage.getItem('space_dodge_high') || '0', 10);
+        highScoreEl.textContent = highScore;
 
-        function setShipX(clientX) {
-            const rect = canvas.getBoundingClientRect();
-            const relX = (clientX - rect.left) * (canvas.width / rect.width);
-            ship.x = Math.max(10, Math.min(canvas.width - ship.size - 10, relX - ship.size / 2));
-        }
+        const ship = { x: 205, y: 410, w: 30, h: 36, speed: 7 };
+        let asteroids = [];
+        let stars = [];
+        let particles = [];
+        let spawnTimer = 0;
+        let leftPressed = false;
+        let rightPressed = false;
 
-        canvas.addEventListener('mousemove', e => setShipX(e.clientX));
-        canvas.addEventListener('touchmove', e => { e.preventDefault(); setShipX(e.touches[0].clientX); }, { passive: false });
-
-        function startGame() {
-            score = 0; level = 1; enemies = [];
-            ship.x = 220;
-            scoreVal.innerText = score;
-            lvlVal.innerText = level;
-            startScreen.style.display = 'none';
-            overScreen.style.display = 'none';
-            isRunning = true;
-            requestAnimationFrame(loop);
-        }
-
-        let lastSpawn = 0;
-        function loop(timestamp) {
-            if (!isRunning) return;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            ctx.fillStyle = '#64748b';
-            stars.forEach(st => {
-                st.y += 2 + level * 0.4;
-                if (st.y > canvas.height) st.y = 0;
-                ctx.fillRect(st.x, st.y, st.s, st.s);
+        // Init background stars
+        for (let i = 0; i < 45; i++) {
+            stars.push({
+                x: Math.random() * 440,
+                y: Math.random() * 480,
+                r: Math.random() * 1.5 + 0.5,
+                vy: Math.random() * 2 + 1
             });
+        }
+
+        function spawnAsteroid() {
+            const level = Math.floor(score / 100) + 1;
+            const r = Math.random() * 14 + 12;
+            asteroids.push({
+                x: Math.random() * (canvas.width - r * 2) + r,
+                y: -30,
+                r: r,
+                vy: Math.random() * 2.5 + 3.0 + Math.min(level * 0.4, 6)
+            });
+        }
+
+        function spawnExplosion(x, y) {
+            for (let i = 0; i < 20; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    life: 1.0,
+                    size: Math.random() * 4 + 2
+                });
+            }
+        }
+
+        function triggerGameOver() {
+            isRunning = false;
+            playSound(110, 0.4, 'sawtooth');
+            spawnExplosion(ship.x + ship.w / 2, ship.y + ship.h / 2);
+
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('space_dodge_high', highScore);
+                highScoreEl.textContent = highScore;
+            }
+            finalScoreEl.textContent = score;
+
+            const text = encodeURIComponent(`🚀 I dodged asteroids for ${score}km in Space Dodge! Can you beat it? https://mini-game-arcade-three.vercel.app/games/space-dodge.html`);
+            whatsappBtn.href = `https://api.whatsapp.com/send?text=${text}`;
+            gameoverScreen.classList.remove('hidden');
+        }
+
+        function resetGame() {
+            score = 0;
+            ship.x = 205;
+            asteroids = [];
+            particles = [];
+            spawnTimer = 0;
+            startScreen.classList.add('hidden');
+            gameoverScreen.classList.add('hidden');
+            isRunning = true;
+            initAudio();
+            playSound(440, 0.1, 'triangle');
+            loop();
+        }
+
+        function loop() {
+            if (!isRunning) return;
 
             score++;
-            scoreVal.innerText = Math.floor(score / 5);
-            level = Math.floor(score / 250) + 1;
-            lvlVal.innerText = level;
 
-            const spawnRate = Math.max(300, 750 - (level * 50));
-            if (timestamp - lastSpawn > spawnRate) {
-                enemies.push({
-                    x: Math.random() * (canvas.width - 40) + 20,
-                    y: -30,
-                    radius: Math.random() * 12 + 14,
-                    speed: Math.random() * 2 + 3 + (level * 0.7)
-                });
-                lastSpawn = timestamp;
+            // Ship movement via keys
+            if (leftPressed && ship.x > 5) ship.x -= ship.speed;
+            if (rightPressed && ship.x < canvas.width - ship.w - 5) ship.x += ship.speed;
+
+            // Spawn asteroids
+            spawnTimer++;
+            const interval = Math.max(22, 45 - Math.floor(score / 120));
+            if (spawnTimer >= interval) {
+                spawnAsteroid();
+                spawnTimer = 0;
             }
 
-            ctx.font = `${ship.size}px sans-serif`;
-            ctx.textAlign = 'center';
-            ctx.fillText('🚀', ship.x + ship.size / 2, ship.y + ship.size / 2);
+            // Update asteroids
+            for (let i = asteroids.length - 1; i >= 0; i--) {
+                const ast = asteroids[i];
+                ast.y += ast.vy;
 
-            for (let i = enemies.length - 1; i >= 0; i--) {
-                const en = enemies[i];
-                en.y += en.speed;
+                // Collision check (circle vs ship box)
+                const closestX = Math.max(ship.x, Math.min(ast.x, ship.x + ship.w));
+                const closestY = Math.max(ship.y, Math.min(ast.y, ship.y + ship.h));
+                const dist = Math.hypot(ast.x - closestX, ast.y - closestY);
 
-                ctx.font = `${en.radius * 2}px sans-serif`;
-                ctx.textAlign = 'center';
-                ctx.fillText('☄️', en.x, en.y);
-
-                const dist = Math.hypot((ship.x + ship.size / 2) - en.x, (ship.y + ship.size / 2) - en.y);
-                if (dist < en.radius + ship.size / 3) {
-                    isRunning = false;
-                    playSfx(120, 0.4, 'sawtooth');
-                    document.getElementById('finalScore').innerText = `Final Score: ${Math.floor(score / 5)}`;
-                    overScreen.style.display = 'flex';
+                if (dist < ast.r - 2) {
+                    triggerGameOver();
                     return;
                 }
 
-                if (en.y > canvas.height + 40) enemies.splice(i, 1);
+                if (ast.y > canvas.height + 40) {
+                    asteroids.splice(i, 1);
+                }
             }
+
+            // Draw Background
+            ctx.fillStyle = '#04060c';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Stars
+            ctx.fillStyle = '#ffffff';
+            for (let st of stars) {
+                st.y += st.vy;
+                if (st.y > canvas.height) st.y = 0;
+                ctx.beginPath();
+                ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Draw Asteroids
+            for (let ast of asteroids) {
+                ctx.fillStyle = '#ef4444';
+                ctx.shadowBlur = 12;
+                ctx.shadowColor = '#ef4444';
+                ctx.beginPath();
+                ctx.arc(ast.x, ast.y, ast.r, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Draw Ship (Triangle Starfighter)
+            ctx.shadowBlur = 14;
+            ctx.shadowColor = '#a855f7';
+            ctx.fillStyle = '#a855f7';
+            ctx.beginPath();
+            ctx.moveTo(ship.x + ship.w / 2, ship.y);
+            ctx.lineTo(ship.x + ship.w, ship.y + ship.h);
+            ctx.lineTo(ship.x + ship.w / 2, ship.y + ship.h - 8);
+            ctx.lineTo(ship.x, ship.y + ship.h);
+            ctx.closePath();
+            ctx.fill();
+
+            // Thruster flame
+            ctx.fillStyle = '#38bdf8';
+            ctx.beginPath();
+            ctx.moveTo(ship.x + ship.w / 2 - 4, ship.y + ship.h - 5);
+            ctx.lineTo(ship.x + ship.w / 2 + 4, ship.y + ship.h - 5);
+            ctx.lineTo(ship.x + ship.w / 2, ship.y + ship.h + Math.random() * 8 + 4);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // HUD
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 15px sans-serif';
+            ctx.fillText(`${score} KM`, 14, 26);
 
             requestAnimationFrame(loop);
         }
 
-        function shareOnWhatsApp() {
-            const finalPts = Math.floor(score / 5);
-            const text = "Maine Space Dodge me " + finalPts + " points banaye (Level " + level + ")! Kya tum mera score beat kar sakte ho? Khelo yahan: " + window.location.href;
-            const url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(text);
-            window.open(url, '_blank');
+        // Pointer controls
+        function moveShip(clientX) {
+            const rect = canvas.getBoundingClientRect();
+            const x = (clientX - rect.left) * (canvas.width / rect.width);
+            ship.x = Math.max(5, Math.min(canvas.width - ship.w - 5, x - ship.w / 2));
         }
+
+        canvas.addEventListener('mousemove', (e) => { if (isRunning) moveShip(e.clientX); });
+        canvas.addEventListener('touchmove', (e) => {
+            if (isRunning && e.touches[0]) moveShip(e.touches[0].clientX);
+        }, { passive: true });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'a') leftPressed = true;
+            if (e.key === 'ArrowRight' || e.key === 'd') rightPressed = true;
+            if (e.code === 'Space' && !isRunning) resetGame();
+        });
+        window.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'a') leftPressed = false;
+            if (e.key === 'ArrowRight' || e.key === 'd') rightPressed = false;
+        });
+
+        startBtn.addEventListener('click', resetGame);
+        restartBtn.addEventListener('click', resetGame);
     </script>
 </body>
 </html>

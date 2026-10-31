@@ -3,259 +3,292 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Memory Match Online - Brain Training Card Pair Game</title>
-    <meta name="description" content="Flip cards, match emoji pairs, and beat the timer across 4 difficulty levels in Memory Match. Free online brain training puzzle.">
-    <meta name="keywords" content="memory match game, card flip puzzle, brain memory online, matching pairs game">
+    <title>Play Memory Match Online - Free Brain Memory Card Game</title>
+    <meta name="description" content="Play Memory Match online for free. Test your brain speed, flip cards, and match emoji pairs in the lowest moves. Instant browser puzzle.">
     <link rel="canonical" href="https://mini-game-arcade-three.vercel.app/games/memory-match.html">
+
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
         body {
-            background: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif;
-            display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden;
+            background: #080c14;
+            color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
         }
         header {
-            width: 100%; max-width: 500px; display: flex; justify-content: space-between;
-            align-items: center; padding: 12px 18px; z-index: 10;
+            width: 100%;
+            max-width: 420px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 14px;
         }
-        .back-btn { color: #38bdf8; text-decoration: none; font-weight: 600; font-size: 15px; }
-        .stats { display: flex; gap: 15px; font-weight: bold; font-size: 16px; }
-        .game-container {
-            width: 100%; max-width: 460px; padding: 12px; display: flex;
-            flex-direction: column; align-items: center; position: relative;
+        .home-link { color: #38bdf8; text-decoration: none; font-weight: 600; }
+        .stats-bar { display: flex; gap: 14px; align-items: center; }
+        .sound-btn {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
         }
-        .grid {
-            display: grid; gap: 12px; width: 100%; max-width: 420px;
-            margin-top: 10px; perspective: 1000px;
+        #game-board {
+            width: 100%;
+            max-width: 420px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            padding: 14px;
+            background: #0f172a;
+            border: 2px solid #38bdf8;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+            border-radius: 14px;
         }
         .card {
-            background: #1e293b; border: 2px solid #334155; border-radius: 12px;
-            aspect-ratio: 1; display: flex; justify-content: center; align-items: center;
-            font-size: 34px; cursor: pointer; transition: transform 0.35s ease, background 0.3s, border-color 0.3s, box-shadow 0.3s;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            aspect-ratio: 1;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s, border-color 0.2s;
         }
-        .card:hover { border-color: #38bdf8; }
-        .card.flipped {
-            background: #0284c7; border-color: #38bdf8; transform: rotateY(180deg);
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+        .card:hover { transform: scale(1.03); border-color: #38bdf8; }
+        .card.flipped { background: #0284c7; transform: rotateY(180deg); }
+        .card.matched { background: #15803d; border-color: #22c55e; cursor: default; }
+
+        .gameover-box {
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 8, 17, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            z-index: 50;
         }
-        .card.matched {
-            background: #059669; border-color: #34d399; cursor: default;
-            box-shadow: 0 0 15px rgba(52, 211, 153, 0.5); animation: pulse 0.5s ease;
+        .gameover-box.hidden { display: none; }
+        .neon-title {
+            font-size: 30px;
+            font-weight: 900;
+            color: #22c55e;
+            text-shadow: 0 0 15px rgba(34, 197, 94, 0.8);
+            margin-bottom: 12px;
         }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.08); }
-            100% { transform: scale(1); }
+        .play-btn {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            border: none;
+            color: #000;
+            font-weight: 800;
+            padding: 12px 28px;
+            font-size: 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            margin-top: 14px;
         }
-        .overlay {
-            position: absolute; inset: 0; background: rgba(15, 23, 42, 0.92);
-            display: flex; flex-direction: column; justify-content: center;
-            align-items: center; gap: 14px; border-radius: 16px; z-index: 20; padding: 20px; text-align: center;
+        .share-btn {
+            margin-top: 10px;
+            background: #25d366;
+            color: #fff;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            text-decoration: none;
         }
-        .overlay h2 { font-size: 30px; color: #38bdf8; }
-        .overlay p { font-size: 15px; color: #cbd5e1; line-height: 1.5; }
-        .btn {
-            background: #0284c7; color: white; border: none; padding: 12px 28px;
-            font-size: 16px; font-weight: bold; border-radius: 10px; cursor: pointer;
-            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4); transition: transform 0.1s;
+        .seo-box {
+            width: 100%;
+            max-width: 420px;
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 14px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #94a3b8;
         }
-        .btn:hover { background: #0369a1; transform: translateY(-2px); }
-        .btn-whatsapp {
-            background: #25D366; color: white; border: none; padding: 12px 28px;
-            font-size: 16px; font-weight: bold; border-radius: 10px; cursor: pointer;
-            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35); text-decoration: none;
-            display: inline-block; transition: transform 0.1s;
-        }
-        .btn-whatsapp:hover { background: #1eb956; transform: translateY(-2px); }
+        .seo-box h2 { font-size: 16px; color: #38bdf8; margin-bottom: 6px; }
     </style>
 </head>
 <body>
 
     <header>
-        <a href="../index.html" class="back-btn">← Back to Arcade</a>
-        <div class="stats">
-            <div>Lvl: <span id="lvlVal" style="color:#38bdf8;">1</span></div>
-            <div>Moves: <span id="movesVal" style="color:#fbbf24;">0</span></div>
-            <div>Time: <span id="timeVal" style="color:#f87171;">20s</span></div>
+        <a href="/" class="home-link">← All Games</a>
+        <div class="stats-bar">
+            <span>Moves: <strong id="moves-val" style="color:#38bdf8">0</strong></span>
+            <span>Best: <strong id="best-moves-val" style="color:#22c55e">-</strong></span>
+            <button id="sound-toggle" class="sound-btn">🔊 Sound</button>
         </div>
     </header>
 
-    <div class="game-container">
-        <div class="grid" id="grid"></div>
+    <div id="game-board"></div>
 
-        <div id="startOverlay" class="overlay">
-            <h2>Memory Match</h2>
-            <p>Flip and match pairs before time runs out!</p>
-            <p style="color: #38bdf8; font-size: 13px;">Levels get tougher with more cards and faster timers.</p>
-            <button class="btn" onclick="startGame()">Start Game</button>
-        </div>
-
-        <div id="msgOverlay" class="overlay" style="display:none;">
-            <h2 id="msgTitle">Game Over</h2>
-            <p id="msgDesc">Score: 0</p>
-            <button class="btn" id="nextBtn" onclick="nextLevel()">Continue</button>
-            <button class="btn-whatsapp" onclick="shareOnWhatsApp()">Share on WhatsApp</button>
-        </div>
+    <div id="gameover-box" class="gameover-box hidden">
+        <h2 class="neon-title">PUZZLE SOLVED! 🎉</h2>
+        <p style="color: #cbd5e1; font-size: 15px; margin-bottom: 6px;">You matched all 8 pairs in <strong id="final-moves" style="color:#38bdf8">0</strong> moves!</p>
+        <button id="restart-btn" class="play-btn">PLAY AGAIN</button>
+        <a id="whatsapp-share" class="share-btn" target="_blank" href="#">Share on WhatsApp</a>
     </div>
 
+    <article class="seo-box">
+        <h2>Cognitive Memory Training</h2>
+        <p>Flip cards two at a time to discover matching pairs. Keep spatial memory active to locate matching icons in the fewest moves possible.</p>
+    </article>
+
     <script>
-        // Web Audio API Sound Effects Engine
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playTone(freq, type, duration, endFreq = null) {
+        const board = document.getElementById('game-board');
+        const movesVal = document.getElementById('moves-val');
+        const bestMovesVal = document.getElementById('best-moves-val');
+        const gameoverBox = document.getElementById('gameover-box');
+        const finalMovesEl = document.getElementById('final-moves');
+        const restartBtn = document.getElementById('restart-btn');
+        const soundBtn = document.getElementById('sound-toggle');
+        const whatsappBtn = document.getElementById('whatsapp-share');
+
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioClass = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioClass();
+            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playSound(freq, duration = 0.08, type = 'sine') {
+            if (!soundEnabled || !audioCtx) return;
             try {
-                if (audioCtx.state === 'suspended') audioCtx.resume();
-                const now = audioCtx.currentTime;
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.type = type;
-                osc.frequency.setValueAtTime(freq, now);
-                if (endFreq) {
-                    osc.frequency.exponentialRampToValueAtTime(endFreq, now + duration);
-                }
-                gain.gain.setValueAtTime(0.18, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + duration);
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
-                osc.start(now);
-                osc.stop(now + duration);
-            } catch(e) {}
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e){}
         }
 
-        const ICONS = ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯'];
-        let level = 1;
+        soundBtn.addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            soundBtn.textContent = soundEnabled ? '🔊 Sound' : '🔇 Muted';
+        });
+
+        const emojis = ['🚀', '💎', '⚡', '🎮', '🍉', '👾', '🌟', '🔔'];
+        let cards = [];
+        let flippedCards = [];
         let moves = 0;
-        let timeLeft = 20;
-        let timer;
-        let flipped = [];
-        let matchedCount = 0;
-        let totalPairs = 2;
+        let matchedPairs = 0;
+        let isLocked = false;
 
-        const grid = document.getElementById('grid');
-        const lvlVal = document.getElementById('lvlVal');
-        const movesVal = document.getElementById('movesVal');
-        const timeVal = document.getElementById('timeVal');
-        const startOverlay = document.getElementById('startOverlay');
-        const msgOverlay = document.getElementById('msgOverlay');
+        let bestMoves = localStorage.getItem('memory_match_best');
+        if (bestMoves) bestMovesVal.textContent = bestMoves;
 
-        function startGame() {
-            startOverlay.style.display = 'none';
-            msgOverlay.style.display = 'none';
-            loadLevel();
+        function createDeck() {
+            const deck = [...emojis, ...emojis];
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+            return deck;
         }
 
-        function loadLevel() {
-            clearInterval(timer);
-            flipped = [];
-            matchedCount = 0;
+        function buildBoard() {
+            board.innerHTML = '';
             moves = 0;
-            movesVal.innerText = moves;
-            lvlVal.innerText = level;
+            matchedPairs = 0;
+            flippedCards = [];
+            isLocked = false;
+            movesVal.textContent = '0';
+            gameoverBox.classList.add('hidden');
 
-            // Progressive difficulty: cards aur time limit
-            let cols = 2;
-            if (level === 1) { totalPairs = 2; timeLeft = 15; cols = 2; }
-            else if (level === 2) { totalPairs = 4; timeLeft = 24; cols = 4; }
-            else if (level === 3) { totalPairs = 6; timeLeft = 32; cols = 4; }
-            else { totalPairs = 8; timeLeft = 38; cols = 4; }
+            const deck = createDeck();
+            cards = [];
 
-            timeVal.innerText = timeLeft + 's';
-            grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-            grid.innerHTML = '';
-
-            let deck = [];
-            for (let i = 0; i < totalPairs; i++) {
-                deck.push(ICONS[i], ICONS[i]);
-            }
-            deck.sort(() => Math.random() - 0.5);
-
-            deck.forEach(icon => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.dataset.icon = icon;
-                card.onclick = () => flipCard(card);
-                grid.appendChild(card);
+            deck.forEach((emoji, idx) => {
+                const el = document.createElement('div');
+                el.classList.add('card');
+                el.dataset.emoji = emoji;
+                el.dataset.idx = idx;
+                el.textContent = '❓';
+                el.addEventListener('click', () => flipCard(el));
+                board.appendChild(el);
+                cards.push(el);
             });
-
-            timer = setInterval(() => {
-                timeLeft--;
-                timeVal.innerText = timeLeft + 's';
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    playTone(180, 'sawtooth', 0.4, 60);
-                    showMsg("Time's Up!", `Game Over at Level ${level}`, false);
-                }
-            }, 1000);
         }
 
         function flipCard(card) {
-            if (flipped.length >= 2 || card.classList.contains('flipped') || card.classList.contains('matched')) return;
-            
-            // Flip sound
-            playTone(380, 'sine', 0.1, 520);
+            initAudio();
+            if (isLocked || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+
             card.classList.add('flipped');
-            card.innerText = card.dataset.icon;
-            flipped.push(card);
+            card.textContent = card.dataset.emoji;
+            playSound(400, 0.05);
+            flippedCards.push(card);
 
-            if (flipped.length === 2) {
+            if (flippedCards.length === 2) {
                 moves++;
-                movesVal.innerText = moves;
-                if (flipped[0].dataset.icon === flipped[1].dataset.icon) {
-                    // Match sound
-                    playTone(550, 'triangle', 0.22, 750);
-                    flipped[0].classList.add('matched');
-                    flipped[1].classList.add('matched');
-                    matchedCount++;
-                    flipped = [];
-
-                    if (matchedCount === totalPairs) {
-                        clearInterval(timer);
-                        // Win chime sound
-                        setTimeout(() => playTone(600, 'sine', 0.1), 50);
-                        setTimeout(() => playTone(800, 'sine', 0.25), 150);
-
-                        setTimeout(() => {
-                            if (level < 4) {
-                                showMsg("Level Clear! 🎉", `Level ${level} complete in ${moves} moves!`, true);
-                            } else {
-                                showMsg("Master Win! 🏆", `All levels beat with ${moves} total moves!`, false);
-                            }
-                        }, 500);
-                    }
-                } else {
-                    // Mismatch buzzer sound
-                    playTone(180, 'sawtooth', 0.15);
-                    setTimeout(() => {
-                        flipped[0].classList.remove('flipped');
-                        flipped[1].classList.remove('flipped');
-                        flipped[0].innerText = '';
-                        flipped[1].innerText = '';
-                        flipped = [];
-                    }, 700);
-                }
+                movesVal.textContent = moves;
+                checkMatch();
             }
         }
 
-        function showMsg(title, desc, isNext) {
-            document.getElementById('msgTitle').innerText = title;
-            document.getElementById('msgDesc').innerText = desc;
-            const btn = document.getElementById('nextBtn');
-            btn.innerText = isNext ? "Next Level" : "Play Again";
-            btn.onclick = isNext ? nextLevel : () => { level = 1; loadLevel(); msgOverlay.style.display = 'none'; };
-            msgOverlay.style.display = 'flex';
+        function checkMatch() {
+            const [c1, c2] = flippedCards;
+            if (c1.dataset.emoji === c2.dataset.emoji) {
+                c1.classList.add('matched');
+                c2.classList.add('matched');
+                matchedPairs++;
+                playSound(650, 0.12);
+                flippedCards = [];
+
+                if (matchedPairs === 8) {
+                    setTimeout(handleWin, 400);
+                }
+            } else {
+                isLocked = true;
+                playSound(220, 0.12, 'sawtooth');
+                setTimeout(() => {
+                    c1.classList.remove('flipped');
+                    c2.classList.remove('flipped');
+                    c1.textContent = '❓';
+                    c2.textContent = '❓';
+                    flippedCards = [];
+                    isLocked = false;
+                }, 750);
+            }
         }
 
-        function nextLevel() {
-            level++;
-            msgOverlay.style.display = 'none';
-            loadLevel();
+        function handleWin() {
+            playSound(800, 0.3);
+            finalMovesEl.textContent = moves;
+            if (!bestMoves || moves < parseInt(bestMoves, 10)) {
+                localStorage.setItem('memory_match_best', moves);
+                bestMovesVal.textContent = moves;
+            }
+            const text = encodeURIComponent(`🧠 I solved Memory Match in ${moves} moves! Can you beat it? https://mini-game-arcade-three.vercel.app/games/memory-match.html`);
+            whatsappBtn.href = `https://api.whatsapp.com/send?text=${text}`;
+            gameoverBox.classList.remove('hidden');
         }
 
-        // WhatsApp Share Challenge Function
-        function shareOnWhatsApp() {
-            const text = "Maine Memory Match me Level " + level + " (" + moves + " moves) complete kiya! Kya tum ise beat kar sakte ho? Khelo yahan: " + window.location.href;
-            const url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(text);
-            window.open(url, '_blank');
-        }
+        restartBtn.addEventListener('click', buildBoard);
+        buildBoard();
     </script>
 </body>
 </html>

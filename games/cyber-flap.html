@@ -3,239 +3,326 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cyber Flap Online - Free Flappy Jet Challenge Game</title>
-    <meta name="description" content="Fly between laser pillars in Cyber Flap. Fast-paced one-tap mobile and browser flight arcade game with instant response.">
-    <meta name="keywords" content="cyber flap game, flappy jet online, play flappy bird browser, casual flight game">
+    <title>Play Cyber Flap Online - Free Arcade Flying Challenge</title>
+    <meta name="description" content="Play Cyber Flap online for free on mobile and PC. Navigate futuristic laser pillars with instant one-tap flight. No download required.">
     <link rel="canonical" href="https://mini-game-arcade-three.vercel.app/games/cyber-flap.html">
+
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
         body {
-            background: #090d16; color: #f8fafc; font-family: system-ui, sans-serif;
-            display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow: hidden;
+            background: #080c14;
+            color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
         }
         header {
-            width: 100%; max-width: 440px; display: flex; justify-content: space-between;
-            align-items: center; padding: 12px 18px; z-index: 10;
+            width: 100%;
+            max-width: 480px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 14px;
         }
-        .back-btn { color: #38bdf8; text-decoration: none; font-weight: 600; font-size: 15px; }
-        .stats { display: flex; gap: 15px; font-weight: bold; font-size: 16px; }
-        .game-container {
-            position: relative; width: 100%; max-width: 420px; height: 560px;
-            background: #0f172a; border-radius: 16px; overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        .home-link { color: #38bdf8; text-decoration: none; font-weight: 600; }
+        .stats-bar { display: flex; gap: 12px; align-items: center; }
+        .sound-btn {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
         }
-        canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 480px;
+            height: 480px;
+            background: #050811;
+            border: 2px solid #00f0ff;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.25);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        canvas { display: block; width: 100%; height: 100%; }
         .overlay {
-            position: absolute; inset: 0; background: rgba(9, 13, 22, 0.9);
-            display: flex; flex-direction: column; justify-content: center;
-            align-items: center; gap: 12px; z-index: 20; padding: 20px; text-align: center;
+            position: absolute;
+            inset: 0;
+            background: rgba(5, 8, 17, 0.88);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+            z-index: 10;
         }
-        .overlay h2 { font-size: 32px; color: #38bdf8; font-weight: 900; }
-        .overlay p { font-size: 15px; color: #cbd5e1; line-height: 1.5; }
-        .btn {
-            background: linear-gradient(135deg, #0284c7, #38bdf8); color: #04101e;
-            border: none; padding: 12px 28px; font-size: 16px; font-weight: 800;
-            border-radius: 10px; cursor: pointer; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
+        .overlay.hidden { display: none; }
+        .neon-title {
+            font-size: 32px;
+            font-weight: 900;
+            color: #00f0ff;
+            text-shadow: 0 0 15px rgba(0, 240, 255, 0.8);
+            letter-spacing: 2px;
+            margin-bottom: 8px;
         }
-        .btn:hover { transform: translateY(-2px); }
-        .btn-whatsapp {
-            background: #25D366; color: white; border: none; padding: 12px 28px;
-            font-size: 16px; font-weight: 800; border-radius: 10px; cursor: pointer;
-            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35); text-decoration: none;
-            display: inline-block; transition: transform 0.1s;
+        .overlay-desc { font-size: 13px; color: #94a3b8; margin-bottom: 18px; line-height: 1.5; }
+        .play-btn {
+            background: linear-gradient(135deg, #00f0ff, #0284c7);
+            border: none;
+            color: #000;
+            font-weight: 800;
+            padding: 12px 28px;
+            font-size: 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
         }
-        .btn-whatsapp:hover { transform: translateY(-2px); background: #1eb956; }
+        .share-btn {
+            margin-top: 10px;
+            background: #25d366;
+            color: #fff;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .seo-box {
+            width: 100%;
+            max-width: 480px;
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 16px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #94a3b8;
+        }
+        .seo-box h2 { font-size: 16px; color: #00f0ff; margin-bottom: 6px; }
     </style>
 </head>
 <body>
 
     <header>
-        <a href="../index.html" class="back-btn">← Back to Arcade</a>
-        <div class="stats">
-            <div>Score: <span id="scoreVal" style="color: #4ade80;">0</span></div>
-            <div>Lvl: <span id="lvlVal" style="color: #38bdf8;">1</span></div>
+        <a href="/" class="home-link">← All Games</a>
+        <div class="stats-bar">
+            <span>High: <strong id="high-score-val" style="color:#00f0ff">0</strong></span>
+            <button id="sound-toggle" class="sound-btn">🔊 Sound</button>
         </div>
     </header>
 
-    <div class="game-container" id="gameBox">
-        <canvas id="gameCanvas" width="400" height="560"></canvas>
+    <div id="game-container">
+        <canvas id="gameCanvas" width="360" height="480"></canvas>
 
-        <div id="startScreen" class="overlay">
-            <h2>CYBER FLAP</h2>
-            <p>Tap screen or press Space to boost thrust!</p>
-            <p style="color: #38bdf8; font-size: 13px;">Fly between laser pillars. Pillars tighten each level!</p>
-            <button class="btn" onclick="startGame()">Launch</button>
+        <div id="start-screen" class="overlay">
+            <h1 class="neon-title">CYBER FLAP</h1>
+            <p class="overlay-desc">Tap or press Space to thrust upward.<br>Thread through pulsating laser gates!</p>
+            <button id="start-btn" class="play-btn">START GAME</button>
         </div>
 
-        <div id="overScreen" class="overlay" style="display:none;">
-            <h2 style="color: #f43f5e;">CRASHED! 💥</h2>
-            <p id="finalScore" style="font-size: 20px; font-weight: bold;">Score: 0</p>
-            <button class="btn" onclick="startGame()">Try Again</button>
-            <button class="btn-whatsapp" onclick="shareOnWhatsApp()">Share on WhatsApp</button>
+        <div id="gameover-screen" class="overlay hidden">
+            <h2 class="neon-title" style="color: #ff0055;">CRASHED</h2>
+            <p class="overlay-desc">Final Score: <strong id="final-score" style="color: #00f0ff; font-size: 20px;">0</strong></p>
+            <button id="restart-btn" class="play-btn">TRY AGAIN</button>
+            <a id="whatsapp-share" class="share-btn" target="_blank" href="#">Share on WhatsApp</a>
         </div>
     </div>
+
+    <!-- SEO & Guide Box -->
+    <article class="seo-box">
+        <h2>How to Play Cyber Flap</h2>
+        <p>Cyber Flap is a high-precision arcade game. Tap or press the Spacebar to trigger micro-bursts of rocket thrust. Gravity pulls your drone down continuously.</p>
+        <p style="margin-top: 8px;"><strong>Pro Tip:</strong> Keep your taps short and rhythmic to maintain a stable horizontal hover altitude.</p>
+    </article>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const scoreVal = document.getElementById('scoreVal');
-        const lvlVal = document.getElementById('lvlVal');
-        const startScreen = document.getElementById('startScreen');
-        const overScreen = document.getElementById('overScreen');
+        const startScreen = document.getElementById('start-screen');
+        const gameoverScreen = document.getElementById('gameover-screen');
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const finalScoreEl = document.getElementById('final-score');
+        const highScoreEl = document.getElementById('high-score-val');
+        const soundBtn = document.getElementById('sound-toggle');
+        const whatsappBtn = document.getElementById('whatsapp-share');
 
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playSfx(freq, dur, type='sine', endFreq=null) {
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioClass = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioClass();
+            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playBeep(freq, type = 'sine', duration = 0.08, endFreq = null) {
+            if (!soundEnabled || !audioCtx) return;
             try {
-                if (audioCtx.state === 'suspended') audioCtx.resume();
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.type = type;
                 osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-                if (endFreq) osc.frequency.exponentialRampToValueAtTime(endFreq, audioCtx.currentTime + dur);
-                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + dur);
+                if (endFreq) osc.frequency.exponentialRampToValueAtTime(endFreq, audioCtx.currentTime + duration);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + duration);
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
                 osc.start();
-                osc.stop(audioCtx.currentTime + dur);
-            } catch(e) {}
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e){}
         }
+
+        soundBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            soundEnabled = !soundEnabled;
+            soundBtn.textContent = soundEnabled ? '🔊 Sound' : '🔇 Muted';
+        });
 
         let isRunning = false;
         let score = 0;
-        let level = 1;
+        let highScore = parseInt(localStorage.getItem('cyber_flap_high') || '0', 10);
+        highScoreEl.textContent = highScore;
 
-        let bird = { x: 70, y: 240, vy: 0, gravity: 0.38, jump: -6.5, size: 24 };
+        const bird = { x: 60, y: 220, vy: 0, gravity: 0.38, lift: -6.5, radius: 12 };
         let pipes = [];
-        let particles = [];
-        let frameCount = 0;
+        let pipeTimer = 0;
+        const pipeGap = 130;
+        const pipeWidth = 42;
 
-        function jump() {
+        function flap() {
             if (!isRunning) return;
-            bird.vy = bird.jump;
-            playSfx(420, 0.1, 'sine', 750);
-            for (let i = 0; i < 5; i++) {
-                particles.push({
-                    x: bird.x, y: bird.y + bird.size / 2,
-                    vx: -(Math.random() * 3 + 2), vy: (Math.random() - 0.5) * 2,
-                    color: '#38bdf8', life: 1
-                });
-            }
+            bird.vy = bird.lift;
+            playBeep(400, 'triangle', 0.08, 650);
         }
 
-        window.addEventListener('keydown', e => { if (e.code === 'Space') { e.preventDefault(); jump(); } });
-        canvas.addEventListener('touchstart', e => { e.preventDefault(); jump(); }, { passive: false });
-        canvas.addEventListener('mousedown', jump);
-
-        function startGame() {
-            bird.y = 240;
-            bird.vy = 0;
+        function resetGame() {
             score = 0;
-            level = 1;
+            bird.y = 220;
+            bird.vy = 0;
             pipes = [];
-            particles = [];
-            frameCount = 0;
-            scoreVal.innerText = score;
-            lvlVal.innerText = level;
-            startScreen.style.display = 'none';
-            overScreen.style.display = 'none';
+            pipeTimer = 0;
+            startScreen.classList.add('hidden');
+            gameoverScreen.classList.add('hidden');
             isRunning = true;
-            requestAnimationFrame(gameLoop);
+            initAudio();
+            playBeep(520, 'sine', 0.1);
+            loop();
         }
 
-        function gameLoop() {
+        function triggerGameOver() {
+            isRunning = false;
+            playBeep(150, 'sawtooth', 0.3, 40);
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('cyber_flap_high', highScore);
+                highScoreEl.textContent = highScore;
+            }
+            finalScoreEl.textContent = score;
+            const text = encodeURIComponent(`🛸 I scored ${score} in Cyber Flap! Can you beat it? https://mini-game-arcade-three.vercel.app/games/cyber-flap.html`);
+            whatsappBtn.href = `https://api.whatsapp.com/send?text=${text}`;
+            gameoverScreen.classList.remove('hidden');
+        }
+
+        function loop() {
             if (!isRunning) return;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            frameCount++;
 
-            level = Math.floor(score / 5) + 1;
-            lvlVal.innerText = level;
-
-            const speed = 2.4 + Math.min(2.5, level * 0.4);
-            const gap = Math.max(105, 155 - level * 7);
-            const pipeInterval = Math.max(70, 100 - level * 4);
-
+            // Physics
             bird.vy += bird.gravity;
             bird.y += bird.vy;
 
-            if (frameCount % pipeInterval === 0) {
-                const pipeY = Math.floor(Math.random() * (canvas.height - gap - 120)) + 60;
-                pipes.push({ x: canvas.width, top: pipeY, bottom: pipeY + gap, passed: false });
+            if (bird.y + bird.radius > canvas.height || bird.y - bird.radius < 0) {
+                triggerGameOver();
+                return;
+            }
+
+            // Pipes
+            pipeTimer++;
+            if (pipeTimer >= 95) {
+                const topH = Math.floor(Math.random() * (canvas.height - pipeGap - 80)) + 40;
+                pipes.push({ x: canvas.width, top: topH, passed: false });
+                pipeTimer = 0;
             }
 
             for (let i = pipes.length - 1; i >= 0; i--) {
                 const p = pipes[i];
-                p.x -= speed;
+                p.x -= 2.2;
 
-                ctx.fillStyle = '#1e293b';
-                ctx.strokeStyle = '#38bdf8';
-                ctx.lineWidth = 2;
-
-                ctx.fillRect(p.x, 0, 52, p.top);
-                ctx.strokeRect(p.x, 0, 52, p.top);
-
-                ctx.fillRect(p.x, p.bottom, 52, canvas.height - p.bottom);
-                ctx.strokeRect(p.x, p.bottom, 52, canvas.height - p.bottom);
-
-                if (bird.x + bird.size > p.x && bird.x < p.x + 52) {
-                    if (bird.y < p.top || bird.y + bird.size > p.bottom) {
-                        endGame();
+                // Collision
+                if (bird.x + bird.radius > p.x && bird.x - bird.radius < p.x + pipeWidth) {
+                    if (bird.y - bird.radius < p.top || bird.y + bird.radius > p.top + pipeGap) {
+                        triggerGameOver();
                         return;
                     }
                 }
 
-                if (!p.passed && p.x + 52 < bird.x) {
+                if (!p.passed && p.x + pipeWidth < bird.x) {
                     p.passed = true;
                     score++;
-                    scoreVal.innerText = score;
-                    playSfx(580, 0.12, 'triangle', 880);
+                    playBeep(600, 'sine', 0.08, 900);
                 }
 
-                if (p.x < -60) pipes.splice(i, 1);
+                if (p.x + pipeWidth < -10) pipes.splice(i, 1);
             }
 
-            for (let i = particles.length - 1; i >= 0; i--) {
-                const pt = particles[i];
-                pt.x += pt.vx;
-                pt.y += pt.vy;
-                pt.life -= 0.04;
-                if (pt.life <= 0) {
-                    particles.splice(i, 1);
-                } else {
-                    ctx.fillStyle = pt.color;
-                    ctx.globalAlpha = pt.life;
-                    ctx.fillRect(pt.x, pt.y, 4, 4);
-                    ctx.globalAlpha = 1.0;
-                }
+            // Draw
+            ctx.fillStyle = '#050811';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Laser Pipes
+            for (const p of pipes) {
+                ctx.fillStyle = '#00f0ff';
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#00f0ff';
+                ctx.fillRect(p.x, 0, pipeWidth, p.top);
+                ctx.fillRect(p.x, p.top + pipeGap, pipeWidth, canvas.height - (p.top + pipeGap));
             }
 
-            ctx.save();
-            ctx.font = '28px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('🚀', bird.x + bird.size / 2, bird.y + bird.size / 2);
-            ctx.restore();
+            // Player Drone
+            ctx.shadowBlur = 16;
+            ctx.shadowColor = '#ff0055';
+            ctx.fillStyle = '#ff0055';
+            ctx.beginPath();
+            ctx.arc(bird.x, bird.y, bird.radius, 0, Math.PI * 2);
+            ctx.fill();
 
-            if (bird.y + bird.size >= canvas.height || bird.y <= 0) {
-                endGame();
-                return;
+            // HUD
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 20px sans-serif';
+            ctx.fillText(`SCORE: ${score}`, 16, 32);
+
+            requestAnimationFrame(loop);
+        }
+
+        startBtn.addEventListener('click', resetGame);
+        restartBtn.addEventListener('click', resetGame);
+
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (isRunning) flap();
+                else resetGame();
             }
+        });
 
-            requestAnimationFrame(gameLoop);
-        }
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (isRunning) flap();
+        }, { passive: false });
 
-        function endGame() {
-            isRunning = false;
-            playSfx(140, 0.35, 'sawtooth', 40);
-            document.getElementById('finalScore').innerText = `Final Score: ${score}`;
-            overScreen.style.display = 'flex';
-        }
-
-        function shareOnWhatsApp() {
-            const text = "Maine Cyber Flap me " + score + " points banaye (Level " + level + ")! Kya tum mera score beat kar sakte ho? Khelo yahan: " + window.location.href;
-            const url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(text);
-            window.open(url, '_blank');
-        }
+        canvas.addEventListener('mousedown', () => { if (isRunning) flap(); });
     </script>
 </body>
 </html>
