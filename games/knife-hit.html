@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Play Cyber Knife Online - Trending Blade Hit Arcade Game</title>
+    <meta name="description" content="Play Cyber Knife (Knife Hit) online for free on mobile and PC. Launch cyber blades into rotating targets, avoid collisions, and climb the Top 5 leaderboard.">
+    <meta name="keywords" content="knife hit online, play cyber knife, blade throwing game, free arcade games no install">
+    <link rel="canonical" href="https://mini-game-arcade-three.vercel.app/games/knife-hit.html">
+
+    <!-- Schema Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Cyber Knife Hit",
+      "url": "https://mini-game-arcade-three.vercel.app/games/knife-hit.html",
+      "applicationCategory": "GameApplication",
+      "operatingSystem": "All",
+      "genre": "Arcade"
+    }
+    </script>
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
+        body {
+            background: #080c14;
+            color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
+            touch-action: manipulation;
+        }
+        header {
+            width: 100%;
+            max-width: 440px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .home-link { color: #38bdf8; text-decoration: none; font-weight: 600; }
+        .stats-bar { display: flex; gap: 12px; align-items: center; }
+        .sound-btn {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        nav.breadcrumbs {
+            width: 100%;
+            max-width: 440px;
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+        nav.breadcrumbs a { color: #38bdf8; text-decoration: none; }
+
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 440px;
+            height: 480px;
+            background: #040711;
+            border: 2px solid #00f0ff;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.25);
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        canvas { display: block; width: 100%; height: 100%; }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(4, 7, 17, 0.92);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 16px;
+            backdrop-filter: blur(4px);
+            z-index: 10;
+        }
+        .overlay.hidden { display: none; }
+        .neon-title {
+            font-size: 28px;
+            font-weight: 900;
+            color: #00f0ff;
+            text-shadow: 0 0 15px rgba(0, 240, 255, 0.8);
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+        .overlay-desc { font-size: 13px; color: #94a3b8; margin-bottom: 12px; }
+
+        .leaderboard-box {
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 8px 14px;
+            width: 100%;
+            max-width: 250px;
+            margin-bottom: 12px;
+            text-align: left;
+        }
+        .lb-title {
+            font-size: 11px;
+            font-weight: 800;
+            color: #00f0ff;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        #leaderboard-list {
+            padding-left: 20px;
+            font-size: 12px;
+            color: #cbd5e1;
+            line-height: 1.4;
+        }
+        .play-btn {
+            background: linear-gradient(135deg, #00f0ff, #0284c7);
+            border: none;
+            color: #000;
+            font-weight: 800;
+            padding: 10px 24px;
+            font-size: 15px;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
+        }
+        .share-btn {
+            margin-top: 8px;
+            background: #25d366;
+            color: #fff;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .seo-box {
+            width: 100%;
+            max-width: 440px;
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 14px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #94a3b8;
+        }
+        .seo-box h2 { font-size: 15px; color: #00f0ff; margin-bottom: 6px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="/" class="home-link">← All Games</a>
+        <div class="stats-bar">
+            <span>High: <strong id="high-score-val" style="color:#00f0ff">0</strong></span>
+            <button id="sound-toggle" class="sound-btn">🔊 Sound</button>
+        </div>
+    </header>
+
+    <nav class="breadcrumbs">
+        <a href="/">Home</a> &gt; <a href="/">Reflex & Speed</a> &gt; <span>Cyber Knife</span>
+    </nav>
+
+    <div id="game-container">
+        <canvas id="gameCanvas" width="440" height="480"></canvas>
+
+        <div id="start-screen" class="overlay">
+            <h1 class="neon-title">CYBER KNIFE</h1>
+            <p class="overlay-desc">Tap or press Space to launch cyber blades.<br>Don't hit existing knives on the rotating core!</p>
+            <button id="start-btn" class="play-btn">START GAME</button>
+        </div>
+
+        <div id="gameover-screen" class="overlay hidden">
+            <h2 class="neon-title" style="color: #ff0055;">BLADE DEFLECTED</h2>
+            <p class="overlay-desc">
+                Score: <strong id="final-score" style="color: #00f0ff; font-size: 18px;">0</strong> | 
+                Stage: <strong id="final-stage" style="color: #a855f7;">1</strong>
+            </p>
+
+            <div class="leaderboard-box">
+                <div class="lb-title">🏆 TOP 5 SCORES</div>
+                <ol id="leaderboard-list"></ol>
+            </div>
+
+            <button id="restart-btn" class="play-btn">TRY AGAIN</button>
+            <a id="whatsapp-share" class="share-btn" target="_blank" href="#">Share on WhatsApp</a>
+        </div>
+    </div>
+
+    <article class="seo-box">
+        <h2>How to Play Cyber Knife Hit</h2>
+        <p>Tap your screen or hit Space to fire blades into the spinning core. Each successful hit embeds a knife. If your knife hits another blade, it shatters and ends the game.</p>
+        <p style="margin-top: 6px;"><strong>Pro Tip:</strong> Watch the target's rotation pattern—it accelerates, slows down, and occasionally reverses direction!</p>
+    </article>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const startScreen = document.getElementById('start-screen');
+        const gameoverScreen = document.getElementById('gameover-screen');
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const finalScoreEl = document.getElementById('final-score');
+        const finalStageEl = document.getElementById('final-stage');
+        const highScoreEl = document.getElementById('high-score-val');
+        const soundBtn = document.getElementById('sound-toggle');
+        const whatsappBtn = document.getElementById('whatsapp-share');
+
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioClass = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioClass();
+            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playSound(freq, duration = 0.08, type = 'square', endFreq = null) {
+            if (!soundEnabled || !audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                if (endFreq) osc.frequency.exponentialRampToValueAtTime(endFreq, audioCtx.currentTime + duration);
+                gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e){}
+        }
+
+        soundBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            soundEnabled = !soundEnabled;
+            soundBtn.textContent = soundEnabled ? '🔊 Sound' : '🔇 Muted';
+        });
+
+        // Top 5 Leaderboard
+        function updateLeaderboard(newScore) {
+            let scores = JSON.parse(localStorage.getItem('cyber_knife_top5') || '[]');
+            if (newScore > 0) {
+                scores.push(newScore);
+                scores.sort((a, b) => b - a);
+                scores = scores.slice(0, 5);
+                localStorage.setItem('cyber_knife_top5', JSON.stringify(scores));
+            }
+            const list = document.getElementById('leaderboard-list');
+            list.innerHTML = scores.length
+                ? scores.map((s) => `<li><span style="color:#00f0ff">${s} pts</span></li>`).join('')
+                : '<li>No scores yet</li>';
+        }
+
+        let isRunning = false;
+        let score = 0;
+        let stage = 1;
+        let highScore = parseInt(localStorage.getItem('cyber_knife_high') || '0', 10);
+        highScoreEl.textContent = highScore;
+
+        // Target Wheel
+        const wheel = {
+            x: 220,
+            y: 150,
+            radius: 65,
+            angle: 0,
+            speed: 0.035,
+            dirTimer: 0
+        };
+
+        // Knives
+        let stuckKnives = []; // angles in radians relative to wheel
+        let flyingKnife = null;
+        let knivesLeft = 7;
+        let particles = [];
+
+        function spawnSparks(x, y, color = '#00f0ff') {
+            for (let i = 0; i < 15; i++) {
+                particles.push({
+                    x, y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    life: 1.0,
+                    color
+                });
+            }
+        }
+
+        function setupStage() {
+            knivesLeft = 6 + Math.min(stage, 6);
+            stuckKnives = [];
+            // Seed a few initial obstacle knives starting Stage 2
+            if (stage > 1) {
+                const initialCount = Math.min(stage - 1, 3);
+                for (let i = 0; i < initialCount; i++) {
+                    stuckKnives.push((Math.PI * 2 / initialCount) * i);
+                }
+            }
+            flyingKnife = null;
+        }
+
+        function throwKnife() {
+            if (!isRunning || flyingKnife) return;
+            initAudio();
+            flyingKnife = { y: 410, vy: -22 };
+            playSound(400, 0.06, 'sawtooth', 800);
+        }
+
+        function triggerGameOver() {
+            isRunning = false;
+            playSound(120, 0.35, 'sawtooth', 40);
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('cyber_knife_high', highScore);
+                highScoreEl.textContent = highScore;
+            }
+            finalScoreEl.textContent = score;
+            finalStageEl.textContent = stage;
+            updateLeaderboard(score);
+
+            const text = encodeURIComponent(`🔪 I reached Stage ${stage} (Score: ${score}) in Cyber Knife! Beat my record: https://mini-game-arcade-three.vercel.app/games/knife-hit.html`);
+            whatsappBtn.href = `https://api.whatsapp.com/send?text=${text}`;
+            gameoverScreen.classList.remove('hidden');
+        }
+
+        function resetGame() {
+            score = 0;
+            stage = 1;
+            setupStage();
+            startScreen.classList.add('hidden');
+            gameoverScreen.classList.add('hidden');
+            isRunning = true;
+            initAudio();
+            playSound(520, 0.1, 'sine');
+            loop();
+        }
+
+        function loop() {
+            if (!isRunning) return;
+
+            // Rotate Wheel with dynamic speed shifts
+            wheel.dirTimer++;
+            if (wheel.dirTimer > 180 + Math.random() * 100) {
+                wheel.speed = (Math.random() > 0.4 ? 1 : -1) * (0.03 + Math.min(stage * 0.005, 0.04));
+                wheel.dirTimer = 0;
+            }
+            wheel.angle += wheel.speed;
+
+            // Handle flying knife
+            if (flyingKnife) {
+                flyingKnife.y += flyingKnife.vy;
+
+                // Check collision with wheel edge
+                if (flyingKnife.y <= wheel.y + wheel.radius) {
+                    const hitAngle = Math.PI / 2 - wheel.angle; // Bottom of wheel relative to its current rotation
+
+                    // Check collision with already stuck knives (within threshold of ~0.22 radians)
+                    let collision = false;
+                    for (let angle of stuckKnives) {
+                        let diff = Math.abs((hitAngle - angle) % (Math.PI * 2));
+                        if (diff > Math.PI) diff = Math.PI * 2 - diff;
+                        if (diff < 0.24) {
+                            collision = true;
+                            break;
+                        }
+                    }
+
+                    if (collision) {
+                        spawnSparks(wheel.x, wheel.y + wheel.radius, '#ff0055');
+                        flyingKnife = null;
+                        triggerGameOver();
+                        return;
+                    } else {
+                        // Successfully embedded
+                        stuckKnives.push(hitAngle);
+                        spawnSparks(wheel.x, wheel.y + wheel.radius, '#00f0ff');
+                        playSound(700, 0.07, 'square', 300);
+                        score += 10;
+                        knivesLeft--;
+                        flyingKnife = null;
+
+                        // Stage cleared
+                        if (knivesLeft <= 0) {
+                            stage++;
+                            score += 50;
+                            playSound(880, 0.2, 'sine', 1200);
+                            spawnSparks(wheel.x, wheel.y, '#22c55e');
+                            setupStage();
+                        }
+                    }
+                }
+            }
+
+            // Update particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.04;
+                if (p.life <= 0) particles.splice(i, 1);
+            }
+
+            // Draw everything
+            ctx.fillStyle = '#040711';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Particles
+            for (const p of particles) {
+                ctx.globalAlpha = Math.max(0, p.life);
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1.0;
+
+            // Draw Wheel Target
+            ctx.save();
+            ctx.translate(wheel.x, wheel.y);
+            ctx.rotate(wheel.angle);
+
+            // Outer ring
+            ctx.strokeStyle = '#00f0ff';
+            ctx.lineWidth = 6;
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#00f0ff';
+            ctx.beginPath();
+            ctx.arc(0, 0, wheel.radius, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Inner core
+            ctx.fillStyle = '#0f172a';
+            ctx.fill();
+            ctx.fillStyle = '#00f0ff';
+            ctx.beginPath();
+            ctx.arc(0, 0, 16, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Embedded knives
+            for (let angle of stuckKnives) {
+                ctx.save();
+                ctx.rotate(angle);
+                ctx.fillStyle = '#38bdf8';
+                ctx.fillRect(-3, wheel.radius - 8, 6, 40);
+                // Knife tip
+                ctx.beginPath();
+                ctx.moveTo(-5, wheel.radius + 32);
+                ctx.lineTo(5, wheel.radius + 32);
+                ctx.lineTo(0, wheel.radius + 44);
+                ctx.fill();
+                ctx.restore();
+            }
+            ctx.restore();
+
+            // Draw Ready Knife at bottom
+            if (!flyingKnife) {
+                ctx.fillStyle = '#00f0ff';
+                ctx.shadowBlur = 12;
+                ctx.shadowColor = '#00f0ff';
+                ctx.fillRect(wheel.x - 3, 400, 6, 42);
+                ctx.beginPath();
+                ctx.moveTo(wheel.x - 5, 400);
+                ctx.lineTo(wheel.x + 5, 400);
+                ctx.lineTo(wheel.x, 386);
+                ctx.fill();
+            } else {
+                // Flying knife
+                ctx.fillStyle = '#00f0ff';
+                ctx.shadowBlur = 16;
+                ctx.shadowColor = '#00f0ff';
+                ctx.fillRect(wheel.x - 3, flyingKnife.y, 6, 42);
+                ctx.beginPath();
+                ctx.moveTo(wheel.x - 5, flyingKnife.y);
+                ctx.lineTo(wheel.x + 5, flyingKnife.y);
+                ctx.lineTo(wheel.x, flyingKnife.y - 14);
+                ctx.fill();
+            }
+
+            // HUD Info
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 16px sans-serif';
+            ctx.fillText(`SCORE: ${score}`, 16, 30);
+            ctx.fillStyle = '#a855f7';
+            ctx.fillText(`STAGE ${stage}`, 16, 52);
+
+            // Knives left icons at bottom left
+            ctx.fillStyle = '#38bdf8';
+            for (let i = 0; i < knivesLeft; i++) {
+                ctx.fillRect(16 + i * 12, 450, 6, 16);
+            }
+
+            requestAnimationFrame(loop);
+        }
+
+        // Event Listeners
+        startBtn.addEventListener('click', resetGame);
+        restartBtn.addEventListener('click', resetGame);
+
+        const container = document.getElementById('game-container');
+        container.addEventListener('pointerdown', (e) => {
+            if (isRunning) throwKnife();
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (isRunning) throwKnife();
+                else if (!startScreen.classList.contains('hidden') || !gameoverScreen.classList.contains('hidden')) {
+                    resetGame();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
