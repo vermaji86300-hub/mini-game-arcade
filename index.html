@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mini Game Arcade - Play Free Instant Web Games Online</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0284c7">
     <meta name="google-site-verification" content="1JhhDRBzmW-VEfxI2T5Hvgk2sUm529lw-w_pAfpXh_s" />
     <!-- SEO Meta Tags for Google Ranking -->
     <meta name="description" content="Play free instant mini games online on mobile and desktop with zero downloads. Enjoy Neon Runner, Fruit Slicer, Cyber Flap, Snake Classic, and more!">
@@ -129,5 +131,10 @@
             </div>
         </div>
     </footer>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+  }
+</script>
 </body>
 </html>
